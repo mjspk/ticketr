@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>Home</title>
+</head>
+<body>
+    <nav class="navbar navbar-inverse" style="border-radius: 0px;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" th:href="@{/}">TicketR</a>
+            </div>
+            <ul class="nav navbar-nav navbar-header">
+                <li class="active"><a th:href="@{/}">Movies</a></li>
+                <li><a th:href="@{/mytickets}">My Tickets</a></li>
+                <li><a th:href="@{/myoffers}">My Offers</a></li>
+                <li><a th:href="@{/contact}">Contact Us</a></li>
+                <li><a th:href="@{/about}">About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a th:href="@{/register}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li><a th:href="@{/login}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+
+
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5Kg76ldv7VxeX9YlcQXiowHgdX6.jpg" alt="Lights" style="width:100%">
+                    <div class="caption">
+                        <p>Movie Title</p>
+                        <p><a href="#" class="btn btn-primary" role="button">Buy Tickets</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5Kg76ldv7VxeX9YlcQXiowHgdX6.jpg" alt="Lights" style="width:100%">
+                    <div class="caption">
+                        <p>Movie Title</p>
+                        <p><a href="#" class="btn btn-primary" role="button">Buy Tickets</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5Kg76ldv7VxeX9YlcQXiowHgdX6.jpg" alt="Lights" style="width:100%">
+                    <div class="caption">
+                        <p>Movie Title</p>
+                        <p><a href="#" class="btn btn-primary" role="button">Buy Tickets</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="thumbnail">
+                    <img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5Kg76ldv7VxeX9YlcQXiowHgdX6.jpg" alt="Lights"
+                        style="width:100%">
+                    <div class="caption">
+                        <p>Movie Title</p>
+                        <p><a href="#" class="btn btn-primary" role="button">Buy Tickets</a></p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+</body>
+</html>

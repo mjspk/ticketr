@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>mytickets</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse" style="border-radius: 0px;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" th:href="@{/}">TicketR</a>
+            </div>
+            <ul class="nav navbar-nav navbar-header">
+                <li><a th:href="@{/}">Movies</a></li>
+                <li  class="active"><a th:href="@{/mytickets}">My Tickets</a></li>
+                <li><a th:href="@{/myoffers}">My Offers</a></li>
+                <li><a th:href="@{/contact}">Contact Us</a></li>
+                <li><a th:href="@{/about}">About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a th:href="@{/register}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li><a th:href="@{/login}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>My Tickets</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Movie</th>
+                            <th>Time</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Seat</th>
+                            <th>Offer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 1</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 2</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 3</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 4</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 5</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 6</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 7</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 8</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 9</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>Avengers: Infinity War</td>
+                            <td>7:00 PM</td>
+                            <td>AMC 30</td>
+                            <td>$10.00</td>
+                            <td>Row 1, Seat 10</td>
+                            <td>None</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
