@@ -3,20 +3,33 @@ package com.ensf614.ticketr.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.model.Response;
+import com.ensf614.ticketr.model.Ticket;
 @Controller
 public class MyTicketsController {
+    @Autowired
+    DataStore dataStore;
 
+    
     @RequestMapping("/mytickets")
     public String myTicketsPage(Model model) {
-        List<String> tickets = new ArrayList<String>();
-        tickets.add("Ticket 1");
-        tickets.add("Ticket 2");
-        tickets.add("Ticket 3");
-        model.addAttribute("tickets", tickets);
-        return "mytickets";
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       Response<List<Ticket>> response = dataStore.getTicketsByUserEmail(auth.getName());
+        if (response.isSuccess()) {
+            model.addAttribute("tickets", response.getData());
+            return "mytickets";
+        } else {
+            model.addAttribute("message", response.getMessage());
+            return "error";
+        }
     }
 
     
