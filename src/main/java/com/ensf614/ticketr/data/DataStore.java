@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.ensf614.ticketr.model.Movie;
+import com.ensf614.ticketr.model.News;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Seat;
 import com.ensf614.ticketr.model.Showtime;
@@ -520,6 +521,10 @@ public class DataStore implements IDataStore {
             response.setMessage("Error retrieving tickets");
             return response;
         }
+    }
+
+    public Response<ArrayList<News>> getMoviesNews() {
+        return null;
     }
 
 }

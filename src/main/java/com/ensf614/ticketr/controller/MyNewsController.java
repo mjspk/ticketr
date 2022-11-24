@@ -17,9 +17,9 @@ public class MyNewsController {
 
     @RequestMapping("/mynews")
     public String myNewsPage(Model model) {
-        Response<ArrayList<Movie>> response = dataStore.getAllMovies();
+        Response<ArrayList<News>> response = dataStore.getMoviesNews();
         if (response.isSuccess()) {
-            model.addAttribute("movies", response.getData());
+            model.addAttribute("news", response.getData());
             return "mynews";
         } else {
             model.addAttribute("message", response.getMessage());
