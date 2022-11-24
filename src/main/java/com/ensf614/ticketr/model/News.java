@@ -1,20 +1,22 @@
 package com.ensf614.ticketr.model;
 
 public class News {
-    private Movie movie;
+    private String image;
+    private String title;
     private String theNews;
 
-    public News(Movie movie, String theNews) {
-        this.movie = movie;
+    public News(String image, String theNews, String title) {
+        this.image = image;
         this.theNews = theNews;
+        this.title = title;
     }
 
-    public Movie getMovie() {
-        return movie;
+    public String getMovie() {
+        return image;
     }
 
-    public void setMovie(Movie movie) {
-        this.movie = movie;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getTheNews() {
