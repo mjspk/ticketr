@@ -94,3 +94,12 @@ create table news (
     theNews varchar(255) not null,
     image varchar(255) not null
 );
+
+create table offers (
+    id int primary key auto_increment,
+    user_id int not null,
+    quantity int not null,
+    price int not null,
+    offer varchar(255) not null,
+    foreign key (user_id) references user(id),
+);
