@@ -524,7 +524,33 @@ public class DataStore implements IDataStore {
     }
 
     public Response<ArrayList<News>> getMoviesNews() {
-        return null;
+        Response<ArrayList<News>> response = new Response<>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM news";
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<News> mynews = new ArrayList<News>();
+            if (rs.next()) {
+                News news = new News();
+                news.setImage(rs.getString("image"));
+                news.setTheNews(rs.getString("theNews"));
+                news.setTitle(rs.getString("title"));
+                mynews.add(news);
+
+                response.setSuccess(true);
+                response.setMessage("News retrieved successfully");
+                response.setData(mynews);
+                return response;
+            } else {
+                response.setSuccess(false);
+                response.setMessage("news not found");
+                return response;
+            }
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving news");
+            return response;
+        }
     }
 
 }
