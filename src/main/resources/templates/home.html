@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="head :: head" />
+    <title>Movies</title>
+</head>
+<body>
+        <div th:replace="navbar :: navbar"></div>
+
+
+    <div class="container">
+        <!-- // SHOW MOVIES in grid format with poster (300x450), title, genre, rating, and buy tickets button -->
+        <!-- // source: Home Controller model.addAttribute("movies", movieService.findAll()); --> 
+        
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Now Showing</h1>
+            </div>
+
+            <div class="col-md-3" th:each="movie : ${movies}" style="height: 660px;">
+               <!-- all rows same hieght -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <img th:src="${movie.poster}" class="img-responsive" alt="Responsive image" style="height: 450px; width: 300px;" onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 th:text="${movie.title}" style="height: 63px;"></h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p th:text="${movie.genre}"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p th:text="${movie.rating}"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <a th:href="@{/select/} + ${movie.id}" class="btn btn-primary">Buy Tickets</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="footer :: footer"></div>
+
+</body>
+</html>

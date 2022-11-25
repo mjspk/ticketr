@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>About</title>
+    <th:block th:include="head :: head"/>
+
+</head>
+
+<body>
+    
+        <div th:replace="navbar :: navbar"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>About</h1>
+                <p>Some text about who we are and what we do.</p>
+                <p>Resize the browser window to see that this page is responsive by the way.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="footer :: footer"></div>
+
+</body>
+
+
+    
+
+</html>
