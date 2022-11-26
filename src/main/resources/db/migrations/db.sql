@@ -94,3 +94,4 @@ create table news (
     theNews varchar(255) not null,
     image varchar(255) not null
 );
+
