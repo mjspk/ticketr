@@ -147,9 +147,22 @@
 -- insert into seat (theater_id, seat_number, row_number,status) values (3, 12, 1, 'available');
 
 
-
--- insert into news (title, theNews, image) values ('Shawshank Redemption', 'This is a must see....', 'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg');
-
+-- insert into news (title, theNews, image) values ('Coming Soon','The Godfather: Part II','https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Dark Knight','https://image.tmdb.org/t/p/w500/1hRoyzDtpgMU7Dz4JF22RANzQO7.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Godfather','https://image.tmdb.org/t/p/w500/rPdtLWNsZmAtoZl9PK7S2wE3qiS.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Lord of the Rings: The Return of the King','https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Pulp Fiction','https://image.tmdb.org/t/p/w500/dM2w364MScsjFf8pfMbaWUcWrR.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Schindler''s List','https://image.tmdb.org/t/p/w500/yPisjyLweCl1tbgwgtzBCNCBle.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon ','12 angery men ','https://image.tmdb.org/t/p/w500/3W0v956XxSG5xgm7LB6qu8ExYJ2.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Good, the Bad and the Ugly','https://image.tmdb.org/t/p/w500/6ksm1sjKMFLbO7UY2i6G1ju9SML.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Fight Club','https://image.tmdb.org/t/p/w500/adw6Lq9FiC9zjYEpOqfq03ituwp.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Lord of the Rings: The Fellowship of the Ring','https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Forrest Gump','https://image.tmdb.org/t/p/w500/yE5d3BUhE8hCnkMUJOo1QDoOGNz.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Inception','https://image.tmdb.org/t/p/w500/s2bT29y0ngXxxu2IA8AOzzXTRhd.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','The Lord of the Rings: The Two Towers','https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','One Flew Over the Cuckoo''s Nest','https://image.tmdb.org/t/p/w500/2Sns5oMb356JNdBHgBETjIpRYy9.jpg');
+-- insert into news (title, theNews, image) values ('Coming Soon','Goodfellas','https://image.tmdb.org/t/p/w500/7c9UVPPiTPltouxRVY6N9uugaVA.jpg');
+ 
 
 
 

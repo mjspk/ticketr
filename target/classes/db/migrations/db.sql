@@ -95,3 +95,7 @@ create table news (
     image varchar(255) not null,
   
 );
+<<<<<<< HEAD
+=======
+
+>>>>>>> e25aaa2575970fa236d3d782a2244ee291aea2fd

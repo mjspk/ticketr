@@ -95,3 +95,4 @@ create table news (
     image varchar(255) not null,
   
 );
+

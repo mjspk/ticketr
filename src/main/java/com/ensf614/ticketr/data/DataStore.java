@@ -28,6 +28,13 @@ public class DataStore implements IDataStore {
         Statement stmt = conn.createStatement();
         return stmt;
     }
+    // get prapared statement
+    private PreparedStatement getPreparedStatement(String query) throws SQLException, ClassNotFoundException {
+        Connection conn = DriverManager.getConnection(env.getProperty("db-url"), env.getProperty("db-username"),
+                env.getProperty("db-password"));
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        return stmt;
+    }
 
     private boolean checkSQLInjection(String str) {
         String regex = "((\\%27)|(\\'))((\\%6F)|o|(\\%4F))((\\%72)|r|(\\%52))";
@@ -87,13 +94,20 @@ public class DataStore implements IDataStore {
                 response.setMessage("Email already exists");
                 return response;
             }
-
-            Statement stmt = getStatement();
+            // add user to database and auto increment id for user 
+           
             String sql = "INSERT INTO user (first_name, last_name, email, address, city, province, postal_code, phone, password) VALUES ('"
                     + user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getEmail() + "', '"
                     + user.getAddress() + "', '" + user.getCity() + "', '" + user.getProvince() + "', '"
                     + user.getPostalCode() + "', '" + user.getPhone() + "', 'None')";
-            stmt.executeUpdate(sql);
+            
+            
+            PreparedStatement praperedStmt = getPreparedStatement(sql);
+            praperedStmt.executeUpdate();
+            ResultSet rs = praperedStmt.getGeneratedKeys();
+            if (rs.next()) {
+                user.setId(rs.getInt(1));
+            }
             response.setSuccess(true);
             response.setMessage("User registered successfully");
             response.setData(user);
@@ -320,16 +334,33 @@ public class DataStore implements IDataStore {
         Response<Showtime> response = new Response<Showtime>();
         try {
             Statement stmt = getStatement();
-            String sql = "SELECT * FROM showtime WHERE id = " + showtimeId;
+            String sql = "SELECT * FROM showtime join theater on showtime.theater_id = theater.id join movie on showtime.movie_id = movie.id WHERE showtime.id = "
+                    + showtimeId;
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next()) {
+                Movie movie = new Movie();
+                movie.setId(rs.getInt("movie.id"));
+                movie.setTitle(rs.getString("movie.title"));
+                movie.setGenre(rs.getString("movie.genre"));
+                movie.setRating(rs.getString("movie.rating"));
+                movie.setDuration(rs.getString("movie.duration"));
+                movie.setReleaseDate(rs.getString("movie.release_date"));
+                movie.setPoster(rs.getString("movie.poster"));
+
+                Theater theater = new Theater();
+                theater.setId(rs.getInt("theater.id"));
+                theater.setName(rs.getString("theater.name"));
+
                 Showtime showtime = new Showtime();
                 showtime.setId(rs.getInt("id"));
                 showtime.setTime(rs.getString("time"));
                 showtime.setDate(rs.getString("date"));
+                showtime.setMovie(movie);
+                showtime.setTheater(theater);
                 response.setSuccess(true);
                 response.setMessage("Showtime retrieved successfully");
                 response.setData(showtime);
+
                 return response;
             } else {
                 response.setSuccess(false);
@@ -438,22 +469,36 @@ public class DataStore implements IDataStore {
 
     }
 
-    public Response<List<Ticket>> addTickets(ArrayList<Ticket> tickets) {
+    public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets) {
 
-        Response<List<Ticket>> response = new Response<List<Ticket>>();
+        Response<ArrayList<Ticket>> response = new Response<ArrayList<Ticket>>();
         try {
 
-            Statement stmt = getStatement();
+            // insert tickets into database and return ticket ids
             String sql = "INSERT INTO ticket (showtime_id, seat_id, user_id, price, status) VALUES ";
             for (int i = 0; i < tickets.size(); i++) {
                 Ticket ticket = tickets.get(i);
-                sql += "(" + ticket.getShowtime().getId() + "," + ticket.getSeat().getId() + "," + ticket.getUserId()
-                        + ","
-                        + ticket.getPrice() + ",'" + ticket.getStatus() + "')";
+                ticket.setStatus("reserved");
+                sql += "(" + ticket.getShowtime().getId() + ", " + ticket.getSeat().getId() + ", "
+                        + ticket.getUserId() + ", " + ticket.getPrice() + ", '" + ticket.getStatus() + "')";
                 if (i < tickets.size() - 1) {
-                    sql += ",";
+                    sql += ", ";
                 }
             }
+            PreparedStatement praperedStmt = getPreparedStatement(sql);
+
+            
+            praperedStmt.executeUpdate();
+
+            ArrayList<Integer> ticketIds = new ArrayList<Integer>();
+            ResultSet rs = praperedStmt.getGeneratedKeys();
+            while (rs.next()) {
+                ticketIds.add(rs.getInt(1));
+            }
+            for (int i = 0; i < tickets.size(); i++) {
+                tickets.get(i).setId(ticketIds.get(i));
+            }
+            Statement stmt = getStatement();
             stmt.executeUpdate(sql);
             for (int i = 0; i < tickets.size(); i++) {
                 Ticket ticket = tickets.get(i);
@@ -530,22 +575,17 @@ public class DataStore implements IDataStore {
             String sql = "SELECT * FROM news";
             ResultSet rs = stmt.executeQuery(sql);
             ArrayList<News> mynews = new ArrayList<News>();
-            if (rs.next()) {
+            while (rs.next()) {
                 News news = new News();
                 news.setImage(rs.getString("image"));
                 news.setTheNews(rs.getString("theNews"));
                 news.setTitle(rs.getString("title"));
                 mynews.add(news);
-
-                response.setSuccess(true);
-                response.setMessage("News retrieved successfully");
-                response.setData(mynews);
-                return response;
-            } else {
-                response.setSuccess(false);
-                response.setMessage("news not found");
-                return response;
             }
+            response.setSuccess(true);
+            response.setMessage("News retrieved successfully");
+            response.setData(mynews);
+            return response;
         } catch (Exception e) {
             response.setSuccess(false);
             response.setMessage("Error retrieving news");

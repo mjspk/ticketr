@@ -22,6 +22,7 @@ public class WebSecurityConfig {
                                                                 "/register",
                                                                 "/select/{movieId}",
                                                                 "/saveuser",
+                                                                "/next",
                                                                 "/userinfo",
                                                                 "/checkout")
                                                 .permitAll()
@@ -29,7 +30,7 @@ public class WebSecurityConfig {
                                 .formLogin((form) -> form
                                                 .loginPage("/login")
                                                 .usernameParameter("email")
-                                                .successForwardUrl("/")
+                                                .successHandler(new MyAuthenticationSuccessHandler())
                                                 .permitAll())
                                 .logout((logout) -> logout.permitAll());
 
