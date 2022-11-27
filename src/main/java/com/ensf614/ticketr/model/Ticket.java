@@ -52,7 +52,14 @@ public class Ticket {
     public void setSeat(Seat seat) {
         this.seat = seat;
     }
-    
+
+    public void setSeatId(int seatId) {
+       if (seat == null) {
+           seat = new Seat();
+       }
+         seat.setId(seatId);
+    }
+
     public Double getPrice() {
         return price;
     }
@@ -68,6 +75,5 @@ public class Ticket {
     public void setStatus(String status) {
         this.status = status;
     }
-    
-    
+
 }

@@ -5,13 +5,16 @@ public class News {
     private String title;
     private String theNews;
 
+    public News() {
+    }
+
     public News(String image, String theNews, String title) {
         this.image = image;
         this.theNews = theNews;
         this.title = title;
     }
 
-    public String getMovie() {
+    public String getImage() {
         return image;
     }
 
@@ -25,6 +28,14 @@ public class News {
 
     public void setTheNews(String theNews) {
         this.theNews = theNews;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
 }

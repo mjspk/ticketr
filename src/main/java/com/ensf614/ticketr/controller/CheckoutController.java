@@ -2,9 +2,13 @@ package com.ensf614.ticketr.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
 import com.ensf614.ticketr.model.Response;
@@ -20,30 +24,42 @@ public class CheckoutController {
     DataStore dataStore;
 
     @RequestMapping("/checkout")
-    public String checkoutPage(Model model, Selection selection) {
-        ArrayList<Ticket> tickets = new ArrayList<>();
-        for (String seatId : selection.getSelectedSeats()) {
+    public String showCheckoutPage(HttpSession session, Model model) {
+        Selection selection = (Selection) session.getAttribute("selection");
+        if (selection == null) {
+            return "redirect:/";
+        }
+
+        ArrayList<Ticket> tickets = new ArrayList<Ticket>();
+        for (Seat seat : selection.getSelectedSeats()) {
             Ticket ticket = new Ticket();
-            ticket.setSeat(new Seat() {
-                {
-                    setId(Integer.parseInt(seatId));
-                }
-            });
-            ticket.setShowtime(new Showtime() {
-                {
-                    setId(selection.getSelectedShowtimeId());
-                }
-            });
-            ticket.setUserId(selection.getUser().getId());
+            ticket.setSeat(seat);
+            ticket.setShowtime(selection.getSelectedShowtime());
             ticket.setPrice(10.00);
-            ticket.setStatus("purchased");
+            ticket.setUserId(selection.getUser().getId());
+            ticket.setStatus("PENDING");
             tickets.add(ticket);
         }
-        Response<List<Ticket>> response = dataStore.addTickets(tickets);
+        selection.setSelectedTickets(tickets);
+        session.setAttribute("selection", selection);
+        model.addAttribute("selection", selection);
+        return "checkout";
 
+    }
+
+    @PostMapping("/checkout")
+    public String checkoutPage(HttpSession session, Model model) {
+        Selection selection = (Selection) session.getAttribute("selection");
+        if (selection == null) {
+            return "redirect:/";
+        }
+        ArrayList<Ticket> tickets = selection.getSelectedTickets();
+        Response<ArrayList<Ticket>> response = dataStore.addTickets(tickets);
         if (response.isSuccess()) {
-            model.addAttribute("tickets", response.getData());
+            selection.setSelectedTickets(response.getData());
+            model.addAttribute("selection", selection);
             model.addAttribute("message", response.getMessage());
+            session.removeAttribute("selection");
             return "confirmation";
         } else {
             model.addAttribute("message", response.getMessage());

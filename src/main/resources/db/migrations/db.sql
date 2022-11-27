@@ -92,6 +92,7 @@ create table news (
     id int primary key auto_increment,
     title varchar(255) not null,
     theNews varchar(255) not null,
-    image varchar(255) not null
+    image varchar(255) not null,
+  
 );
 

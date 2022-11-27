@@ -19,7 +19,7 @@ public class MyNewsController {
     public String myNewsPage(Model model) {
         Response<ArrayList<News>> response = dataStore.getMoviesNews();
         if (response.isSuccess()) {
-            model.addAttribute("news", response.getData());
+            model.addAttribute("newsList", response.getData());
             return "mynews";
         } else {
             model.addAttribute("message", response.getMessage());

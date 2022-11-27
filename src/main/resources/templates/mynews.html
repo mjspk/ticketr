@@ -10,25 +10,20 @@
     <div th:replace="navbar :: navbar"></div>
 
     <div class="container">
-
-        <div class="row">
+        <h1>Movie News</h1>
+        <div class="row" th:each="news : ${newsList}" style="height: 200px; padding: 10px;">
             <div class="col-md-12">
-                <h1>Movie News</h1>
-            </div>
-
-            <div class="col-md-3" th:each="n : ${news}" style="height: 630px;">
-                <!-- all rows same hieght -->
                 <div class="row">
-                    <div class="col-md-12">
-                        <img th:src="${n.image}" class="img-responsive" alt="Responsive image"
-                            style="height: 400px; width: 300px;"
-                            onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                    <div class="col-md-2">
+                        <img th:src="${news.image}" class="img-responsive" alt="Responsive image" style="height: 150px; width: 150px;" onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                    </div>
+                    <div class="col-md-10">
+                        <h3 th:text="${news.title}"></h3>
+                        <p th:text="${news.theNews}"></p>
                     </div>
                 </div>
-               
             </div>
         </div>
-    </div>
     </div>
 
     <div th:replace="footer :: footer"></div>
