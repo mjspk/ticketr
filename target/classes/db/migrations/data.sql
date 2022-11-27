@@ -148,6 +148,8 @@
 
 
 
+-- insert into news (title, theNews, image) values ('Shawshank Redemption', 'This is a must see....', 'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg');
+
 
 
 
