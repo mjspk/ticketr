@@ -2,19 +2,18 @@ package com.ensf614.ticketr.service;
 
 import java.util.ArrayList;
 import java.util.Properties;
-
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Ticket;
 
@@ -98,6 +97,13 @@ public class EmailService {
         body += "<br><br><h3>Total: $" + data.getPrice() + "</h3>";
         body += "<br><br><h3>Receipt NO: " + data.getId() + "</h3>";
         body += "<br><br><h3>Enjoy the movie!</h3>";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        if (!username.equals("anonymousUser")) {
+            body += "<br><br><h3>You can cancel your Tickets up to 72 hours before the show and you will get a credit with 15% off ( adminstrationfees) to use with any futur purchases up to one year.</h3>";
+        } else {
+            body += "<br><br><h3>You can cancel your Tickets up to 72 hours before the show and you will get a full credit to use with anyfutur purchasesup to one year.</h3>";
+        }
         sendEmail(to, subject, body);
 
     }

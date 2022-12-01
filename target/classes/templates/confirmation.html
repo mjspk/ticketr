@@ -39,9 +39,17 @@
                 <h3>Thank you for your purchase!</h3>
                 <h4>You will receive an email receipt shortly.</h4>
                 <div sec:authorize="isAnonymous()">
-                    <h4>As guest user, if you cancel your tickets, you will lose %15 ( adminestration fee ) of your
-                        payment.</h4>
-                    </h4>
+                    <h4>You can cancel your Tickets up to 72 hours before the show and you will get a credit with 15%
+                        off ( adminstration
+                        fees) to use with any
+                        futur purchases
+                        up to one year.</h4>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <h4>You can cancel your Tickets up to 72 hours before the show and you will get a full credit to use
+                        with any
+                        futur purchases
+                        up to one year.</h4>
                 </div>
             </div>
         </div>
