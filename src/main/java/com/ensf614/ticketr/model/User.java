@@ -172,4 +172,12 @@ public class User {
         this.rolStrings = rolStrings;
     }
 
+    public String getRolesString() {
+        String rolesString = "";
+        for (String role : rolStrings) {
+            rolesString += role + ", ";
+        }
+        return rolesString;
+    }
+
 }

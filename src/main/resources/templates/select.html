@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Select theater & showtime</title>
-    <th:block th:include="head :: head"/>
+    <th:block th:include="head :: head" />
 </head>
+
 <body>
     <div th:replace="navbar :: navbar"></div>
     <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
             <div class="col-md-12">
+                <p th:text="${message}"></p>
                 <h1>Select theater & showtime</h1>
                 <div class="row">
                     <div class="col-md-3">
-                        <img th:src="${selection.selectedMovie.poster}" class="img-responsive" alt="Responsive image" style="height: 450px; width: 300px;" onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                        <img th:src="${selection.selectedMovie.poster}" class="img-responsive" alt="Responsive image"
+                            style="height: 450px; width: 300px;"
+                            onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
                     </div>
                     <div class="col-md-9">
                         <h3 th:text="${selection.selectedMovie.title}"></h3>
@@ -24,19 +29,27 @@
                         <a th:href="${selection.selectedMovie.trailer}" class="btn btn-primary">Watch Trailer</a>
                     </div>
                     <div class="col-md-12">
-                        <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}" method="get">
+                        <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}"
+                            method="get">
                             <div class="form-group">
                                 <label for="theater">Select a theater</label>
-                                <select class="form-control" id="theater" th:field="*{selectedTheater.id}" onchange="this.form.submit()" >
-                                    <option th:each="theater : ${selection.theaters}" th:value="${theater.id}" th:text="${theater.name}" th:selected="${theater.id == selection.selectedTheater.id}"></option>
+                                <select class="form-control" id="theater" th:field="*{selectedTheater.id}"
+                                    onchange="this.form.submit()">
+                                    <option th:each="theater : ${selection.theaters}" th:value="${theater.id}"
+                                        th:text="${theater.name}"
+                                        th:selected="${theater.id == selection.selectedTheater.id}"></option>
                                 </select>
                             </div>
                         </form>
-                        <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}" method="get">
+                        <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}"
+                            method="get">
                             <div class="form-group">
                                 <label for="showtime">Select a showtime</label>
-                                <select class="form-control" id="showtime" th:field="*{selectedShowtime.id}" onchange="this.form.submit()">
-                                    <option th:each="showtime : ${selection.showtimes}" th:value="${showtime.id}" th:text="${showtime.time}" th:selected="${showtime.id == selection.selectedShowtime.id}"></option>
+                                <select class="form-control" id="showtime" th:field="*{selectedShowtime.id}"
+                                    onchange="this.form.submit()">
+                                    <option th:each="showtime : ${selection.showtimes}" th:value="${showtime.id}"
+                                        th:text="${showtime.time}"
+                                        th:selected="${showtime.id == selection.selectedShowtime.id}"></option>
                                 </select>
                             </div>
                         </form>
@@ -45,8 +58,13 @@
                                 <label for="seats">Select seats</label>
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <div class="col-md-4" th:each="seat : ${selection.seats}" >
-                                            <input  th:field="*{selectedSeatsString}"  th:disabled="${seat.status == 'booked'}" th:text="' N'+${seat.seat_number}+ ' R'+ ${seat.row_number} + ' ' + ${seat.status}+ ' '" th:checked="${seat.status == 'booked'}" th:value="${seat.id}" class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1"> 
+                                        <div class="col-md-4" th:each="seat : ${selection.seats}">
+                                            <input th:field="*{selectedSeatsString}"
+                                                th:disabled="${seat.status == 'booked'}"
+                                                th:text="' N'+${seat.seat_number}+ ' R'+ ${seat.row_number} + ' ' + ${seat.status}+ ' '"
+                                                th:checked="${seat.status == 'booked'}" th:value="${seat.id}"
+                                                class="form-check-input" type="checkbox" id="inlineCheckbox1"
+                                                value="option1">
                                         </div>
                                     </div>
                                 </div>
@@ -55,11 +73,11 @@
                                 <button type="submit" class="btn btn-primary">Next</button>
                             </div>
                         </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div th:replace="footer :: footer"></div>
+        <div th:replace="footer :: footer"></div>
 </body>
 
 </html>
