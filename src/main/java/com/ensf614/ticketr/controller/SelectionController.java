@@ -1,7 +1,7 @@
 package com.ensf614.ticketr.controller;
 
 import java.util.ArrayList;
-
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.ensf614.ticketr.data.DataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
@@ -21,71 +20,84 @@ public class SelectionController {
     DataStore dataStore;
 
     @RequestMapping("/select/{movieId}")
-    public String buyTickets(Model model, @PathVariable int movieId, Selection selection) {
-        Response<Movie> response = dataStore.getMovie(movieId);
-        Response<ArrayList<Theater>> response2 = dataStore.getAllTheaters(movieId);
-        ArrayList<Showtime> showtimes = null;
-        ArrayList<Theater> theaters = null;
-        ArrayList<Seat> seats = null;
-        if (response.isSuccess()) {
-            if (response2.isSuccess()) {
-                theaters = response2.getData();
-                int theaterId = selection.getSelectedTheaterId() == 0 ? theaters.get(0).getId()
-                        : selection.getSelectedTheaterId();
-                selection.setSelectedTheaterId(theaterId);
-                Response<ArrayList<Showtime>> response3 = dataStore.getShowtimes(movieId, theaterId);
-                if (response3.isSuccess()) {
-                    showtimes = response3.getData();
-                    if (showtimes.size() > 0) {
-                        int showtimeId = selection.getSelectedShowtimeId() == 0 ? showtimes.get(0).getId()
-                                : selection.getSelectedShowtimeId();
-                        selection.setSelectedShowtimeId(showtimeId);
-                        Response<ArrayList<Seat>> response4 = dataStore.getSeats(showtimeId);
-                        if (response4.isSuccess()) {
-                            seats = response4.getData();
-                        }
-                    }
-                    selection.setSelectedMovie(response.getData());
-                    model.addAttribute("selection", selection);
-                    model.addAttribute("theaters", theaters);
-                    model.addAttribute("showtimes", showtimes);
-                    model.addAttribute("seats", seats);
-                    return "select";
-                } else {
-                    model.addAttribute("message", response3.getMessage());
-                    return "error";
-                }
+    public String buyTickets(HttpSession session, Model model, @PathVariable int movieId, Selection mySelection) {
+        Selection selection = (Selection) session.getAttribute("selection");
+
+        if (selection == null || selection.getSelectedMovie().getId() != movieId) {
+            selection = new Selection();
+            Response<Movie> response = dataStore.getMovie(movieId);
+            if (response.isSuccess()) {
+                selection.setSelectedMovie(response.getData());
             } else {
-                model.addAttribute("message", response2.getMessage());
+                model.addAttribute("message", response.getMessage());
                 return "error";
             }
+            Response<ArrayList<Theater>> response2 = dataStore.getAllTheaters(movieId);
+            if (response2.isSuccess()) {
+                selection.setTheaters(response2.getData());
+            } else {
+                model.addAttribute("message", response.getMessage());
+                return "error";
+            }
+        }
+
+        if (selection.getSelectedTheaterId() == 0) {
+            selection.setSelectedTheater(selection.getTheaters().get(0));
+        }
+
+        Response<ArrayList<Showtime>> response3 = dataStore.getShowtimes(movieId, selection.getSelectedTheaterId());
+        if (response3.isSuccess()) {
+            selection.setShowtimes(response3.getData());
+            if (selection.getSelectedShowtimeId() == 0) {
+                if (selection.getShowtimes().size() > 0) {
+                    selection.setSelectedShowtime(selection.getShowtimes().get(0));
+                } else {
+                    model.addAttribute("message", "No showtimes available for this movie and theater");
+                    return "error";
+                }
+            }
+            Response<ArrayList<Seat>> response4 = dataStore.getSeats(movieId, selection.getSelectedShowtimeId());
+            if (response4.isSuccess()) {
+                selection.setSeats(response4.getData());
+            } else {
+                model.addAttribute("message", response4.getMessage());
+                return "error";
+            }
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         } else {
-            model.addAttribute("message", response.getMessage());
+            model.addAttribute("message", response3.getMessage());
             return "error";
         }
     }
 
     @RequestMapping("/userinfo")
-    public String userInfo(Model model, Selection selection) {
-        if (selection.getSelectedSeats().length == 0) {
+    public String userInfo(HttpSession session, Model model, Selection myselection) {
+        Selection selection = (Selection) session.getAttribute("selection");
+        if (selection == null) {
+            return "redirect:/";
+        }
+        selection.setSelectedSeatsString(myselection.getSelectedSeatsString());
+        if (selection.getSelectedSeatsString().length == 0) {
             model.addAttribute("message", "Please select at least one seat.");
             return "error";
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth.getName() != "anonymousUser") {
-            Response<User> response = dataStore.getUser(auth.getName());
-            if (response.isSuccess()) {
-                selection.setUser(response.getData());
-                model.addAttribute("selection", selection);
-                return "checkout";
-            } else {
-                model.addAttribute("message", response.getMessage());
-                return "error";
-            }
-        } else {
-            model.addAttribute("selection", selection);
-            return "userinfo";
+
+        if (dataStore.checkSeats(selection.getSelectedShowtimeId(), selection.getSelectedSeatsString())) {
+            model.addAttribute("message", "Sorry, one or more of the seats you selected are no longer available.");
+            return "error";
         }
+
+        if (dataStore.ifSeatsExceedsTenPercentage(selection.getSelectedMovie().getId(),
+                selection.getSelectedTheaterId(), selection.getSelectedShowtimeId(),
+                selection.getSelectedSeatsString())) {
+            model.addAttribute("message",
+                    "Sorry, one or more of the seats you selected exceeds 10% of the total seats for upcoming showtime.");
+            return "error";
+        }
+        return "redirect:/checkout";
+
 
     }
 }

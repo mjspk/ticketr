@@ -11,7 +11,8 @@ create table movie (
     release_date varchar(255) not null,
     duration varchar(255) not null,
     trailer varchar(255) not null,
-    poster varchar(255) not null
+    poster varchar(255) not null,
+    status varchar(255) not null,
 );
 create table theater (
     id int primary key auto_increment,
@@ -43,7 +44,6 @@ create table seat (
     row_number int not null,
     seat_number int not null,
     price int not null,
-    status varchar(255) not null,
     foreign key (theater_id) references theater(id),
     unique (theater_id, row_number, seat_number)
 );
@@ -55,7 +55,8 @@ create table showtime (
     theater_id int not null,
     movie_id int not null,
     foreign key (theater_id) references theater(id),
-    foreign key (movie_id) references movie(id)
+    foreign key (movie_id) references movie(id),
+    unique (theater_id, movie_id, date, time)
 
 );
 
@@ -70,8 +71,9 @@ create table ticket (
     status varchar(255) not null,
     foreign key (user_id) references user(id),
     foreign key (showtime_id) references showtime(id),
-    foreign key (seat_id) references seat(id)
-
+    foreign key (seat_id) references seat(id),
+    unique (user_id, showtime_id, seat_id)
+    
 );
 
 create table role (
@@ -92,14 +94,29 @@ create table news (
     id int primary key auto_increment,
     title varchar(255) not null,
     theNews varchar(255) not null,
-    image varchar(255) not null
+    image varchar(255) not null,
+  
 );
-
-create table offers (
+create table card (
     id int primary key auto_increment,
     user_id int not null,
-    quantity int not null,
-    price int not null,
-    offer varchar(255) not null,
-    foreign key (user_id) references user(id),
+    card_number varchar(255) not null,
+    card_name varchar(255) not null,
+    card_expiry varchar(255) not null,
+    card_cvv varchar(255) not null,
+    foreign key (user_id) references user(id)
 );
+
+create table payment (
+    id int primary key auto_increment,
+    user_id int not null,
+    transaction_id varchar(255) not null,
+    amount double not null,
+    foreign key (user_id) references user(id),
+    unique (user_id, transaction_id)
+);
+
+
+
+
+

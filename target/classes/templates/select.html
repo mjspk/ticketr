@@ -6,7 +6,7 @@
 </head>
 <body>
     <div th:replace="navbar :: navbar"></div>
-    <div class="container">
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
             <div class="col-md-12">
                 <h1>Select theater & showtime</h1>
@@ -23,41 +23,30 @@
                         <p th:text="${selection.selectedMovie.releaseDate}"></p>
                         <a th:href="${selection.selectedMovie.trailer}" class="btn btn-primary">Watch Trailer</a>
                     </div>
-               
-                    
                     <div class="col-md-12">
                         <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}" method="get">
-                            <input type="hidden" th:name="movieId" th:field="*{selectedMovie.id}" />
-                            <input type="hidden" th:name="theaterId" th:field="*{selectedTheaterId}" />
-                            <input type="hidden" th:name="showtimeId" th:field="*{selectedShowtimeId}" />
                             <div class="form-group">
                                 <label for="theater">Select a theater</label>
-                                <select class="form-control" id="theater" th:field="*{selectedTheaterId}" onchange="this.form.submit()" >
-                                    <option th:each="theater : ${theaters}" th:value="${theater.id}" th:text="${theater.name}" th:selected="${theater.id == selection.selectedTheaterId}"></option>
+                                <select class="form-control" id="theater" th:field="*{selectedTheater.id}" onchange="this.form.submit()" >
+                                    <option th:each="theater : ${selection.theaters}" th:value="${theater.id}" th:text="${theater.name}" th:selected="${theater.id == selection.selectedTheater.id}"></option>
                                 </select>
                             </div>
                         </form>
                         <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}" method="get">
-                            <input type="hidden" th:name="movieId" th:field="*{selectedMovie.id}" />
-                            <input type="hidden" th:name="theaterId" th:field="*{selectedTheaterId}" />
-                            <input type="hidden" th:name="showtimeId" th:field="*{selectedShowtimeId}" />
                             <div class="form-group">
                                 <label for="showtime">Select a showtime</label>
-                                <select class="form-control" id="showtime" th:field="*{selectedShowtimeId}" onchange="this.form.submit()">
-                                    <option th:each="showtime : ${showtimes}" th:value="${showtime.id}" th:text="${showtime.time}" th:selected="${showtime.id == selection.selectedShowtimeId}"></option>
+                                <select class="form-control" id="showtime" th:field="*{selectedShowtime.id}" onchange="this.form.submit()">
+                                    <option th:each="showtime : ${selection.showtimes}" th:value="${showtime.id}" th:text="${showtime.time}" th:selected="${showtime.id == selection.selectedShowtime.id}"></option>
                                 </select>
                             </div>
                         </form>
                         <form th:action="@{/userinfo}" method="get" th:object="${selection}">
-                            <input type="hidden" th:name="movieId" th:field="*{selectedMovie.id}" />
-                            <input type="hidden" th:name="theaterId" th:field="*{selectedTheaterId}" />
-                            <input type="hidden" th:name="showtimeId" th:field="*{selectedShowtimeId}" />
                             <div class="form-group">
                                 <label for="seats">Select seats</label>
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <div class="col-md-4" th:each="seat : ${seats}" >
-                                            <input  th:field="*{selectedSeats}"  th:disabled="${seat.status == 'booked'}" th:text="' N'+${seat.seat_number}+ ' R'+ ${seat.row_number} + ' ' + ${seat.status}+ ' '" th:checked="${seat.status == 'booked'}" th:value="${seat.id}" class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1"> 
+                                        <div class="col-md-4" th:each="seat : ${selection.seats}" >
+                                            <input  th:field="*{selectedSeatsString}"  th:disabled="${seat.status == 'booked'}" th:text="' N'+${seat.seat_number}+ ' R'+ ${seat.row_number} + ' ' + ${seat.status}+ ' '" th:checked="${seat.status == 'booked'}" th:value="${seat.id}" class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1"> 
                                         </div>
                                     </div>
                                 </div>

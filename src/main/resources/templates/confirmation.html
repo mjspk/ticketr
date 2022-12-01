@@ -1,19 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
 <head>
     <title>Confirmation</title>
     <th:block th:include="head :: head" />
 </head>
+
 <body>
     <div th:replace="navbar :: navbar"></div>
-    <div class="container">
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h2>Confirmation</h2>
-                <p th:text="${message}"></p>
+
+            <div class="col-md-12">
+                <h1>Confirmation</h1>
+                <p>Thank you for using Ticketr. Please check your purchase details below.</p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Movie Title</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Seat Number</th>
+                            <th>Ticket Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ticket : ${selection.selectedTickets}">
+                            <td th:text="${selection.selectedMovie.title}"></td>
+                            <td th:text="${selection.selectedShowtime.date}"></td>
+                            <td th:text="${selection.selectedShowtime.time}"></td>
+                            <td th:text="${ticket.seat.seat_number}"></td>
+                            <td th:text="${ticket.id}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <h3>Thank you for your purchase!</h3>
+                <h4>You will receive an email receipt shortly.</h4>
+                <div sec:authorize="isAnonymous()">
+                    <h4>You can cancel your Tickets up to 72 hours before the show and you will get a credit with 15%
+                        off ( adminstration
+                        fees) to use with any
+                        futur purchases
+                        up to one year.</h4>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <h4>You can cancel your Tickets up to 72 hours before the show and you will get a full credit to use
+                        with any
+                        futur purchases
+                        up to one year.</h4>
+                </div>
             </div>
         </div>
     </div>
     <div th:replace="footer :: footer"></div>
 </body>
+
 </html>
