@@ -15,7 +15,7 @@ public class MyNewsController {
     @Autowired
     DataStore dataStore;
 
-    @RequestMapping("/mynews")
+    @RequestMapping("/news")
     public String myNewsPage(Model model) {
         Response<ArrayList<News>> response = dataStore.getMoviesNews();
         if (response.isSuccess()) {

@@ -40,6 +40,8 @@ public class AppUserDetails implements UserDetails {
         return this.user.getFirstName();
     }    
 
+    
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -59,4 +61,7 @@ public class AppUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.isEnabled();
     }
+
+   
+   
 }

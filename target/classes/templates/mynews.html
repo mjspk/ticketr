@@ -9,7 +9,7 @@
 <body>
     <div th:replace="navbar :: navbar"></div>
 
-    <div class="container">
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <h1>Movie News</h1>
         <div class="row" th:each="news : ${newsList}" style="height: 200px; padding: 10px;">
             <div class="col-md-12">

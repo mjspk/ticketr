@@ -1,47 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
 <head>
     <title>Confirmation</title>
     <th:block th:include="head :: head" />
 </head>
+
 <body>
     <div th:replace="navbar :: navbar"></div>
-    <div class="container">
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
-           
-                <div class="col-md-12">
-                 <h1>Confirmation</h1>
-                 <table class="table table-striped">
-                      <thead>
-                            <tr>
-                             <th>Movie Title</th>
-                             <th>Date</th>
-                             <th>Time</th>
-                             <th>Seat Number</th>
-                             <th>Ticket Number</th>
 
-                            </tr>
-                      </thead>
-                      <tbody>
-                            <tr th:each="ticket : ${selection.selectedTickets}">
-                             <td th:text="${selection.selectedMovie.title}"></td>
-                             <td th:text="${selection.selectedShowtime.date}"></td>
-                             <td th:text="${selection.selectedShowtime.time}"></td>
-                             <td th:text="${ticket.seat.seat_number}"></td>
-                             <td th:text="${ticket.id}"></td>
-                            </tr>
-                      </tbody>
-                 </table>
+            <div class="col-md-12">
+                <h1>Confirmation</h1>
+                <p>Thank you for using Ticketr. Please check your purchase details below.</p>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Movie Title</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Seat Number</th>
+                            <th>Ticket Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ticket : ${selection.selectedTickets}">
+                            <td th:text="${selection.selectedMovie.title}"></td>
+                            <td th:text="${selection.selectedShowtime.date}"></td>
+                            <td th:text="${selection.selectedShowtime.time}"></td>
+                            <td th:text="${ticket.seat.seat_number}"></td>
+                            <td th:text="${ticket.id}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <h3>Thank you for your purchase!</h3>
+                <h4>You will receive an email receipt shortly.</h4>
+                <div sec:authorize="isAnonymous()">
+                    <h4>As guest user, if you cancel your tickets, you will lose %15 ( adminestration fee ) of your
+                        payment.</h4>
+                    </h4>
                 </div>
-                <div class="col-md-12">
-                    <h3>Thank you for your purchase!</h3>
-                    <h4>You will receive an email receipt shortly.</h4>
-                    <div sec:authorize="isAnonymous()">
-                        <h4>As guest user, if you cancel your tickets, you will lose 10% of the total price of the tickets.</h4>
-                    </div>
-                </div>
+            </div>
         </div>
     </div>
     <div th:replace="footer :: footer"></div>
 </body>
+
 </html>

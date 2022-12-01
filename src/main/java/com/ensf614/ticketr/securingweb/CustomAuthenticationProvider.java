@@ -1,4 +1,4 @@
-package com.ensf614.ticketr.data;
+package com.ensf614.ticketr.securingweb;
 
 import java.util.ArrayList;
 
@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.User;
 
 @Component
@@ -25,9 +27,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throws AuthenticationException {
         String email = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
-        if (dataStore.loginUser(email, password).isSuccess()) {
+        Response<User> response = dataStore.loginUser(email, password);
+
+        if (response.isSuccess()) {
             return new UsernamePasswordAuthenticationToken(
-                    email, password, new ArrayList<>());
+                    email, password, response.getData().getAuthorities());
         } else {
             return null;
         }
@@ -38,5 +42,4 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 
-    
 }

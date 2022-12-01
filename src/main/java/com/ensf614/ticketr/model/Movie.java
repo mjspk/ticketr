@@ -11,6 +11,7 @@ public class Movie {
     private String duration;
     private String trailer;
     private String poster;
+    private String status;
 
     public Movie(int id, String title, String description, String genre, String rating, String releaseDate,
             String duration, String trailer, String poster) {
@@ -98,6 +99,14 @@ public class Movie {
 
     public void setPoster(String poster) {
         this.poster = poster;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     

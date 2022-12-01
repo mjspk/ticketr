@@ -6,7 +6,7 @@
 </head>
 <body>
     <div th:replace="navbar :: navbar"></div>
-    <div class="container">
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
             <div class="col-md-12">
                 <h1>Select theater & showtime</h1>
@@ -23,8 +23,6 @@
                         <p th:text="${selection.selectedMovie.releaseDate}"></p>
                         <a th:href="${selection.selectedMovie.trailer}" class="btn btn-primary">Watch Trailer</a>
                     </div>
-               
-                    
                     <div class="col-md-12">
                         <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}" method="get">
                             <div class="form-group">

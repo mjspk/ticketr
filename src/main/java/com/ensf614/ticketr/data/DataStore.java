@@ -2,20 +2,26 @@ package com.ensf614.ticketr.data;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
+import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Movie;
 import com.ensf614.ticketr.model.News;
+import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Response;
+import com.ensf614.ticketr.model.Role;
 import com.ensf614.ticketr.model.Seat;
+import com.ensf614.ticketr.model.Selection;
 import com.ensf614.ticketr.model.Showtime;
 import com.ensf614.ticketr.model.Theater;
 import com.ensf614.ticketr.model.Ticket;
 import com.ensf614.ticketr.model.User;
+import com.ensf614.ticketr.service.PaymentService;
 
 @Component("dataStore")
 public class DataStore implements IDataStore {
@@ -28,7 +34,7 @@ public class DataStore implements IDataStore {
         Statement stmt = conn.createStatement();
         return stmt;
     }
-    // get prapared statement
+
     private PreparedStatement getPreparedStatement(String query) throws SQLException, ClassNotFoundException {
         Connection conn = DriverManager.getConnection(env.getProperty("db-url"), env.getProperty("db-username"),
                 env.getProperty("db-password"));
@@ -57,17 +63,33 @@ public class DataStore implements IDataStore {
                 response.setMessage("Email already exists");
                 return response;
             }
-            if (user.getPassword() == null || user.getPassword().length() < 8) {
-                response.setSuccess(false);
-                response.setMessage("Password must be at least 8 characters");
-                return response;
-            }
-            Statement stmt = getStatement();
+
             String sql = "INSERT INTO user (first_name, last_name, email, address, city, province, postal_code, phone, password) VALUES ('"
                     + user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getEmail() + "', '"
                     + user.getAddress() + "', '" + user.getCity() + "', '" + user.getProvince() + "', '"
                     + user.getPostalCode() + "', '" + user.getPhone() + "', '" + user.getPassword() + "')";
-            stmt.executeUpdate(sql);
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                user.setId(rs.getInt(1));
+            }
+            // add user card to database
+            if (user.getDefaultCard() != null) {
+                sql = "INSERT INTO card (user_id, card_number, card_name, card_expiry, card_cvv) VALUES ('"
+                        + user.getId()
+                        + "', '" + user.getDefaultCard().getCardNumber() + "', '"
+                        + user.getDefaultCard().getCardHolderName()
+                        + "', '" + user.getDefaultCard().getExpiryDate() + "', '" + user.getDefaultCard().getCvv()
+                        + "')";
+                stmt = getPreparedStatement(sql);
+                stmt.executeUpdate();
+                rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    user.getDefaultCard().setId(rs.getInt(1));
+                }
+            }
+            editRoles(user);
             response.setSuccess(true);
             response.setMessage("User registered successfully");
             response.setData(user);
@@ -94,20 +116,18 @@ public class DataStore implements IDataStore {
                 response.setMessage("Email already exists");
                 return response;
             }
-            // add user to database and auto increment id for user 
-           
             String sql = "INSERT INTO user (first_name, last_name, email, address, city, province, postal_code, phone, password) VALUES ('"
                     + user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getEmail() + "', '"
                     + user.getAddress() + "', '" + user.getCity() + "', '" + user.getProvince() + "', '"
-                    + user.getPostalCode() + "', '" + user.getPhone() + "', 'None')";
-            
-            
+                    + user.getPostalCode() + "', '" + user.getPhone() + "', '" + user.getPassword() + "')";
+
             PreparedStatement praperedStmt = getPreparedStatement(sql);
             praperedStmt.executeUpdate();
             ResultSet rs = praperedStmt.getGeneratedKeys();
             if (rs.next()) {
                 user.setId(rs.getInt(1));
             }
+            editRoles(user);
             response.setSuccess(true);
             response.setMessage("User registered successfully");
             response.setData(user);
@@ -155,6 +175,12 @@ public class DataStore implements IDataStore {
                 user.setLastName(rs.getString("last_name"));
                 user.setEmail(rs.getString("email"));
                 user.setPassword(rs.getString("password"));
+                user.setAddress(rs.getString("address"));
+                user.setCity(rs.getString("city"));
+                user.setProvince(rs.getString("province"));
+                user.setPostalCode(rs.getString("postal_code"));
+                user.setPhone(rs.getString("phone"));
+                user.setRoles(getUserRoles(user));
                 response.setSuccess(true);
                 response.setMessage("User logged in successfully");
                 response.setData(user);
@@ -183,6 +209,67 @@ public class DataStore implements IDataStore {
         try {
             Statement stmt = getStatement();
             String sql = "SELECT * FROM movie";
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<Movie> movies = new ArrayList<Movie>();
+            while (rs.next()) {
+                Movie movie = new Movie();
+                movie.setId(rs.getInt("id"));
+                movie.setTitle(rs.getString("title"));
+                movie.setGenre(rs.getString("genre"));
+                movie.setRating(rs.getString("rating"));
+                movie.setDuration(rs.getString("duration"));
+                movie.setReleaseDate(rs.getString("release_date"));
+                movie.setPoster(rs.getString("poster"));
+                movie.setTrailer(rs.getString("trailer"));
+                movie.setStatus(rs.getString("status"));
+                movies.add(movie);
+            }
+            response.setSuccess(true);
+            response.setMessage("Movies retrieved successfully");
+            response.setData(movies);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving movies");
+            return response;
+        }
+    }
+
+    public Response<ArrayList<Movie>> getAllShowingMovies() {
+        Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM movie where status = 'showing'";
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<Movie> movies = new ArrayList<Movie>();
+            while (rs.next()) {
+                Movie movie = new Movie();
+                movie.setId(rs.getInt("id"));
+                movie.setTitle(rs.getString("title"));
+                movie.setGenre(rs.getString("genre"));
+                movie.setRating(rs.getString("rating"));
+                movie.setDuration(rs.getString("duration"));
+                movie.setReleaseDate(rs.getString("release_date"));
+                movie.setPoster(rs.getString("poster"));
+                movies.add(movie);
+            }
+            response.setSuccess(true);
+            response.setMessage("Movies retrieved successfully");
+            response.setData(movies);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving movies");
+            return response;
+        }
+    }
+
+    // get upcoming movies
+    public Response<ArrayList<Movie>> getUpcomingMovies() {
+        Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM movie WHERE status = 'upcoming'";
             ResultSet rs = stmt.executeQuery(sql);
             ArrayList<Movie> movies = new ArrayList<Movie>();
             while (rs.next()) {
@@ -228,19 +315,41 @@ public class DataStore implements IDataStore {
     public User getUserByEmail(String email) {
         try {
             Statement stmt = getStatement();
-            String sql = "SELECT * FROM user WHERE email = '" + email + "'";
+            String sql = "SELECT * FROM user WHERE email = '"
+                    + email + "'";
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next()) {
                 User user = new User();
-                user.setId(rs.getInt("id"));
+                user.setId(rs.getInt("user.id"));
                 user.setFirstName(rs.getString("first_name"));
                 user.setLastName(rs.getString("last_name"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                Set<Role> roles = getUserRoles(user);
+                user.setRoles(roles);
+
                 return user;
             } else {
                 return null;
             }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private Set<Role> getUserRoles(User user) {
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM user_role join role on user_role.role_id = role.id WHERE user_id = "
+                    + user.getId();
+            ResultSet rs = stmt.executeQuery(sql);
+            Set<Role> roles = new HashSet<Role>();
+            while (rs.next()) {
+                Role role = new Role();
+                role.setId(rs.getInt("role.id"));
+                role.setName(rs.getString("name"));
+                roles.add(role);
+            }
+            return roles;
         } catch (Exception e) {
             return null;
         }
@@ -374,13 +483,14 @@ public class DataStore implements IDataStore {
         }
     }
 
-    public Response<ArrayList<Seat>> getSeats(int showtimeId) {
+    public Response<ArrayList<Seat>> getSeats(int movieId, int showtimeId) {
 
         Response<ArrayList<Seat>> response = new Response<ArrayList<Seat>>();
         try {
             Statement stmt = getStatement();
-            String sql = "SELECT * FROM seat join showtime on seat.theater_id = showtime.theater_id WHERE showtime.id = "
-                    + showtimeId;
+
+            String sql = "SELECT seat.id, row_number, seat_number,(CASE WHEN ticket.id IS NULL THEN 'available' ELSE 'booked' END) AS status FROM seat join showtime on seat.theater_id = showtime.theater_id LEFT JOIN ticket on seat.id = ticket.seat_id AND showtime.id = ticket.showtime_id where showtime.id = "
+                    + showtimeId + " AND showtime.movie_id = " + movieId;
             ResultSet rs = stmt.executeQuery(sql);
             ArrayList<Seat> seats = new ArrayList<Seat>();
             while (rs.next()) {
@@ -388,10 +498,10 @@ public class DataStore implements IDataStore {
                 seat.setId(rs.getInt("id"));
                 seat.setRow_number(rs.getInt("row_number"));
                 seat.setSeat_number(rs.getInt("seat_number"));
-                seat.setPrice(rs.getDouble("price"));
                 seat.setStatus(rs.getString("status"));
                 seats.add(seat);
             }
+
             response.setSuccess(true);
             response.setMessage("Seats retrieved successfully");
             response.setData(seats);
@@ -433,42 +543,6 @@ public class DataStore implements IDataStore {
         }
     }
 
-    public Response<User> getUser(String email) {
-
-        Response<User> response = new Response<User>();
-        try {
-            Statement stmt = getStatement();
-            String sql = "SELECT * FROM user WHERE email = '" + email + "'";
-            ResultSet rs = stmt.executeQuery(sql);
-            if (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setLastName(rs.getString("last_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
-                user.setPhone(rs.getString("phone"));
-                user.setAddress(rs.getString("address"));
-                user.setCity(rs.getString("city"));
-                user.setProvince(rs.getString("province"));
-                user.setPostalCode(rs.getString("postal_code"));
-                response.setSuccess(true);
-                response.setMessage("User retrieved successfully");
-                response.setData(user);
-                return response;
-            } else {
-                response.setSuccess(false);
-                response.setMessage("User not found");
-                return response;
-            }
-        } catch (Exception e) {
-            response.setSuccess(false);
-            response.setMessage("Error retrieving user");
-            return response;
-        }
-
-    }
-
     public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets) {
 
         Response<ArrayList<Ticket>> response = new Response<ArrayList<Ticket>>();
@@ -487,9 +561,8 @@ public class DataStore implements IDataStore {
             }
             PreparedStatement praperedStmt = getPreparedStatement(sql);
 
-            
             praperedStmt.executeUpdate();
-
+            praperedStmt.clearBatch();
             ArrayList<Integer> ticketIds = new ArrayList<Integer>();
             ResultSet rs = praperedStmt.getGeneratedKeys();
             while (rs.next()) {
@@ -498,13 +571,7 @@ public class DataStore implements IDataStore {
             for (int i = 0; i < tickets.size(); i++) {
                 tickets.get(i).setId(ticketIds.get(i));
             }
-            Statement stmt = getStatement();
-            stmt.executeUpdate(sql);
-            for (int i = 0; i < tickets.size(); i++) {
-                Ticket ticket = tickets.get(i);
-                sql = "UPDATE seat SET status = 'booked' WHERE id = " + ticket.getSeat().getId();
-                stmt.executeUpdate(sql);
-            }
+
             response.setSuccess(true);
             response.setMessage(
                     "Tickets added successfully \n " +
@@ -589,6 +656,460 @@ public class DataStore implements IDataStore {
         } catch (Exception e) {
             response.setSuccess(false);
             response.setMessage("Error retrieving news");
+            return response;
+        }
+    }
+
+    @Override
+    public Response<Card> getDefaultCard(User user) {
+        Response<Card> response = new Response<>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM card WHERE user_id = " + user.getId() + " ";
+            ResultSet rs = stmt.executeQuery(sql);
+            Card card = new Card();
+            if (rs.next()) {
+                card.setId(rs.getInt("id"));
+                card.setCardNumber(rs.getString("card_number"));
+                card.setCvv(rs.getString("cvv"));
+                card.setExpiryDate(rs.getString("expiration_date"));
+                card.setUserId(rs.getInt("user_id"));
+                response.setSuccess(true);
+                response.setMessage("Card retrieved successfully");
+                response.setData(card);
+                return response;
+            } else {
+                response.setSuccess(false);
+                response.setMessage("Card not found");
+                return response;
+            }
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving card");
+            return response;
+        }
+    }
+
+    public boolean isEmailInUse(String email) {
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM user WHERE email = '" + email + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkSeats(int selectedShowtimeId, String[] selectedSeatsString) {
+
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM seat WHERE showtime_id = " + selectedShowtimeId + " AND status = 'booked'";
+            ResultSet rs = stmt.executeQuery(sql);
+            List<Seat> bookedSeats = new ArrayList<Seat>();
+            while (rs.next()) {
+                Seat seat = new Seat();
+                seat.setId(rs.getInt("id"));
+                seat.setRow_number(rs.getInt("row_number"));
+                seat.setSeat_number(rs.getInt("seat_number"));
+                seat.setStatus(rs.getString("status"));
+                bookedSeats.add(seat);
+            }
+            for (String seat : selectedSeatsString) {
+                int seat_id = Integer.parseInt(seat);
+                for (Seat bookedSeat : bookedSeats) {
+                    if (bookedSeat.getId() == seat_id) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean ifSeatsExceedsTenPercentage(int movieId, int theaterId, int showtimeId,
+            String[] selectedSeatsString) {
+        try {
+
+            Statement stmt = getStatement();
+            String sql = "SELECT status FROM movie WHERE id = " + movieId + " and status = 'upcoming'";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                sql = "SELECT * FROM seat join showtime on seat.showtime_id = showtime.id WHERE showtime.movie_id = "
+                        + movieId + " AND showtime.theater_id = " + theaterId + " AND showtime.id = " + showtimeId
+                        + " AND seat.status = 'booked'";
+                rs = stmt.executeQuery(sql);
+                List<Seat> bookedSeats = new ArrayList<Seat>();
+                while (rs.next()) {
+                    Seat seat = new Seat();
+                    seat.setId(rs.getInt("id"));
+                    seat.setRow_number(rs.getInt("row_number"));
+                    seat.setSeat_number(rs.getInt("seat_number"));
+                    seat.setStatus(rs.getString("status"));
+                    bookedSeats.add(seat);
+                }
+                sql = "SELECT * FROM seat join showtime on seat.showtime_id = showtime.id WHERE showtime.movie_id = "
+                        + movieId + " AND showtime.theater_id = " + theaterId + " AND showtime.id = " + showtimeId;
+                rs = stmt.executeQuery(sql);
+                List<Seat> allSeats = new ArrayList<Seat>();
+                while (rs.next()) {
+                    Seat seat = new Seat();
+                    seat.setId(rs.getInt("id"));
+                    seat.setRow_number(rs.getInt("row_number"));
+                    seat.setSeat_number(rs.getInt("seat_number"));
+                    seat.setStatus(rs.getString("status"));
+                    allSeats.add(seat);
+                }
+                int bookedSeatsCount = bookedSeats.size();
+                int allSeatsCount = allSeats.size();
+                int selectedSeatsCount = selectedSeatsString.length;
+                int totalSeatsCount = bookedSeatsCount + selectedSeatsCount;
+                double percentage = (double) totalSeatsCount / allSeatsCount;
+                if (percentage > 0.1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Response<User> updateUserPayment(User user, Card card) {
+        Response<User> response = new Response<>();
+        try {
+            Statement stmt = getStatement();
+            // update card if it exists else create a new one
+            String sql = "SELECT * FROM card WHERE user_id = " + user.getId() + " ";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                sql = "UPDATE card SET card_number = '" + card.getCardNumber() + "', card_cvv = '" + card.getCvv()
+                        + "', card_expiry = '" + card.getExpiryDate() + "',card_name = '" + card.getCardHolderName()
+                        + "' WHERE user_id = " + card.getUserId() + " ";
+                stmt.executeUpdate(sql);
+            } else {
+                sql = "INSERT INTO card (card_number, card_cvv, card_expiry, card_name, user_id) VALUES ('"
+                        + card.getCardNumber() + "', '" + card.getCvv() + "', '" + card.getExpiryDate() + "', '"
+                        + card.getCardHolderName() + "', " + card.getUserId() + ")";
+                stmt.executeUpdate(sql);
+            }
+            stmt.executeUpdate(sql);
+            user.setDefaultCard(card);
+            response.setSuccess(true);
+            response.setMessage("User updated successfully");
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error updating user");
+            return response;
+        }
+    }
+
+    public Response<ArrayList<Movie>> searchMovies(String query) {
+
+        Response<ArrayList<Movie>> response = new Response<>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM movie WHERE title LIKE '%" + query + "%' OR description LIKE '%" + query
+                    + "%' OR genre LIKE '%" + query + "%' OR rating LIKE '%" + query + "%' OR release_date LIKE '%"
+                    + query + "%' OR duration LIKE '%" + query + "%' OR trailer LIKE '%" + query
+                    + "%' OR poster LIKE '%"
+                    + query + "%' OR status LIKE '%" + query + "%'";
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<Movie> movies = new ArrayList<Movie>();
+            while (rs.next()) {
+                Movie movie = new Movie();
+                movie.setId(rs.getInt("id"));
+                movie.setTitle(rs.getString("title"));
+                movie.setDescription(rs.getString("description"));
+                movie.setGenre(rs.getString("genre"));
+                movie.setRating(rs.getString("rating"));
+                movie.setReleaseDate(rs.getString("release_date"));
+                movie.setDuration(rs.getString("duration"));
+                movie.setTrailer(rs.getString("trailer"));
+                movie.setPoster(rs.getString("poster"));
+                movie.setStatus(rs.getString("status"));
+                movies.add(movie);
+            }
+            response.setSuccess(true);
+            response.setMessage("Movies fetched successfully");
+            response.setData(movies);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error fetching movies");
+            return response;
+        }
+    }
+
+    public Response<Receipt> processPayment(Selection selection) {
+
+        Response<Receipt> response = new Response<>();
+        try {
+            String transaction_id = PaymentService.getInstance().processPayment(selection.getCard().getCardNumber(),
+                    selection.getCard().getCardHolderName(), selection.getCard().getExpiryDate(),
+                    selection.getCard().getCvv());
+            String sql = "INSERT INTO payment (user_id, transaction_id, amount) VALUES (" + selection.getUser().getId()
+                    + ", '" + transaction_id + "', " + selection.getTotalPrice() + ")";
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            Receipt receipt = new Receipt();
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                receipt.setId(rs.getInt(1));
+            }
+            receipt.setDate(selection.getSelectedShowtime().getDate());
+            receipt.setTime(selection.getSelectedShowtime().getTime());
+            receipt.setMovieName(selection.getSelectedMovie().getTitle());
+            receipt.setTheatreName(selection.getSelectedTheater().getName());
+            receipt.setUserEmail(selection.getUser().getEmail());
+            receipt.setPrice(selection.getTotalPrice());
+            receipt.setTickets(selection.getSelectedTickets());
+
+            response.setSuccess(true);
+            response.setMessage("Receipt fetched successfully");
+            response.setData(receipt);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error fetching receipt");
+            return response;
+        }
+
+    }
+
+    public Response<Boolean> addMovie(Movie movie) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+            String sql = "INSERT INTO movie (title, description, genre, rating, release_date, duration, trailer, poster, status) VALUES ('"
+                    + movie.getTitle() + "', '" + movie.getDescription() + "', '" + movie.getGenre() + "', '"
+                    + movie.getRating() + "', '" + movie.getReleaseDate() + "', '" + movie.getDuration() + "', '"
+                    + movie.getTrailer() + "', '" + movie.getPoster() + "', '" + movie.getStatus() + "')";
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            response.setSuccess(true);
+            response.setMessage("Movie added successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error adding movie");
+            return response;
+        }
+
+    }
+
+    public Response<Boolean> deleteMovie(int id) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+            String sql = "DELETE FROM showtime WHERE movie_id = " + id;
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            sql = "DELETE FROM movie WHERE id = " + id;
+            stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            response.setSuccess(true);
+            response.setMessage("Movie deleted successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error deleting movie");
+            return response;
+        }
+
+    }
+
+    public Response<Boolean> deleteUser(int id) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+            String sql = "DELETE FROM user_role WHERE user_id = " + id;
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            sql = "DELETE FROM user WHERE id = " + id;
+            stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            response.setSuccess(true);
+            response.setMessage("User deleted successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error deleting user");
+            return response;
+        }
+
+    }
+
+    public Response<ArrayList<User>> getAllUsers() {
+
+        Response<ArrayList<User>> response = new Response<>();
+        try {
+            String sql = "SELECT * FROM user";
+            Statement stmt = getStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<User> users = new ArrayList<User>();
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setAddress(rs.getString("address"));
+                user.setCity(rs.getString("city"));
+                user.setProvince(rs.getString("province"));
+                user.setPostalCode(rs.getString("postal_code"));
+                user.setPhone(rs.getString("phone"));
+                user.setPassword(rs.getString("password"));
+                users.add(user);
+            }
+            response.setSuccess(true);
+            response.setMessage("Users fetched successfully");
+            response.setData(users);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error fetching users");
+            return response;
+        }
+    }
+
+    public Card getDefaultCard(int id) {
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM card WHERE user_id = " + id + " ";
+            ResultSet rs = stmt.executeQuery(sql);
+            Card card = new Card();
+            while (rs.next()) {
+                card.setId(rs.getInt("id"));
+                card.setCardNumber(rs.getString("card_number"));
+                card.setCardHolderName(rs.getString("card_name"));
+                card.setExpiryDate(rs.getString("card_expiry"));
+                card.setCvv(rs.getString("card_cvv"));
+            }
+            return card;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Response<Boolean> editRoles(User user) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+            String sql = "DELETE FROM user_role WHERE user_id = " + user.getId();
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            for (String roleName : user.getRolStrings()) {
+                sql = "INSERT INTO user_role (user_id, role_id) VALUES (" + user.getId()
+                        + ", (SELECT id FROM role WHERE name = '"
+                        + roleName + "'))";
+                stmt = getPreparedStatement(sql);
+                stmt.executeUpdate();
+                stmt.clearBatch();
+            }
+            response.setSuccess(true);
+            response.setMessage("Roles updated successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error updating roles");
+            return response;
+        }
+    }
+
+    public ArrayList<Role> getAllRoles() {
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM role";
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<Role> roles = new ArrayList<Role>();
+            while (rs.next()) {
+                Role role = new Role();
+                role.setId(rs.getInt("id"));
+                role.setName(rs.getString("name"));
+                roles.add(role);
+            }
+            return roles;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public Response<User> getUser(int id) {
+
+        Response<User> response = new Response<>();
+        try {
+            String sql = "SELECT * FROM user WHERE id = " + id;
+            Statement stmt = getStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            User user = new User();
+            while (rs.next()) {
+                user.setId(rs.getInt("id"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setAddress(rs.getString("address"));
+                user.setCity(rs.getString("city"));
+                user.setProvince(rs.getString("province"));
+                user.setPostalCode(rs.getString("postal_code"));
+                user.setPhone(rs.getString("phone"));
+                user.setPassword(rs.getString("password"));
+                user.setRoles(getUserRoles(user));
+            }
+            response.setSuccess(true);
+            response.setMessage("User fetched successfully");
+            response.setData(user);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error fetching user");
+            return response;
+        }
+    }
+
+    public Response<User> updateUser(User user) {
+        Response<User> response = new Response<>();
+        try {
+            String sql = "UPDATE user SET first_name = '" + user.getFirstName() + "', last_name = '"
+                    + user.getLastName() + "', email = '" + user.getEmail() + "', address = '"
+                    + user.getAddress() + "', city = '" + user.getCity() + "', province = '"
+                    + user.getProvince() + "', postal_code = '" + user.getPostalCode() + "', phone = '"
+                    + user.getPhone() + "', password = '" + user.getPassword() + "' WHERE id = "
+                    + user.getId();
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            editRoles(user);
+            response.setSuccess(true);
+            response.setMessage("User updated successfully");
+            response.setData(user);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error updating user");
             return response;
         }
     }

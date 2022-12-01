@@ -6,28 +6,51 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-inverse" style="border-radius: 0px;" th:fragment="navbar">
+    <nav th:fragment="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" th:href="@{/}">TicketR</a>
+                <a th:href="@{/}" class="navbar-brand" href="/"><i class="fa fa-film"></i> Ticketr</a>
             </div>
             <ul class="nav navbar-nav navbar-header">
                 <li><a th:href="@{/}">Movies</a></li>
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/upcoming}">Upcoming</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/mytickets}">My Tickets</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/myoffers}">My Offers</a></li>
-                <li sec:authorize="isAuthenticated()"><a th:href="@{/mynews}">Movie News</a></li>
+                <li><a th:href="@{/mynews}">News</a></li>
                 <li><a th:href="@{/contact}">Contact</a></li>
                 <li><a th:href="@{/about}">About</a></li>
-            </ul>
-            <ul sec:authorize="isAuthenticated()" class="nav navbar-nav navbar-right">
-                <li><a th:text="${#authentication.name}"></a></li>
-                <li><a th:href="@{/logout}">Logout</a></li>
+                <li>
+                    <div class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search" id="search">
+                        </div>
+                        <a class="btn btn-default"
+                            th:onclick="| window.location.href='/search?query='+document.getElementById('search').value; |">
+                            <i class="fa fa-search"></i></a>
+                    </div>
+                </li>
+
             </ul>
 
-            <ul class="nav navbar-nav navbar-right" sec:authorize="isAnonymous()">
-                <li><a th:href="@{/register}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-                <li><a th:href="@{/login}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <ul sec:authorize="isAuthenticated()" class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> <span
+                                th:text="${#authentication.name}"></span> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{/profile}">Profile</a></li>
+                            <li><a th:href="@{/changepayment}">Default payment method</a></li>
+                            <li><a th:href="@{/logout}">Logout</a></li>
+                            <li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/admin}">Admin</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right" sec:authorize="isAnonymous()">
+                    <li><a th:href="@{/register}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a th:href="@{/login}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                </ul>
         </div>
     </nav>
 </body>

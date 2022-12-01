@@ -2,6 +2,8 @@ package com.ensf614.ticketr.model;
 
 public class Card {
 
+    private int id;
+    private int userId;
     private String cardNumber;
     private String cardHolderName;
     private String expiryDate;
@@ -47,6 +49,23 @@ public class Card {
 
     public void setCvv(String cvv) {
         this.cvv = cvv;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     

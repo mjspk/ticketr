@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:include="head :: head" />
-    <title>Movies</title>
-<link type="image/png" sizes="96x96" rel="icon" href="icons8-film-reel-96.png">
+
+    <title>Upcoming Movies</title>
+    <th:block th:include="head :: head"/>
 
 </head>
-<body>
-        <div th:replace="navbar :: navbar"></div>
 
+<body>
+    
+    <div th:replace="navbar :: navbar"></div>
     <div class="container" style="min-height: 100vh; padding-top: 70px;">
-      
-        
         <div class="row">
             <div class="col-md-12">
-                <h1>Now Showing</h1>
+                <h1>Upcoming</h1>
             </div>
-
+        
             <div class="col-md-3" th:each="movie : ${movies}" style="height: 660px;">
-               <!-- all rows same hieght -->
+                <!-- all rows same hieght -->
                 <div class="row">
                     <div class="col-md-12">
-                        <img th:src="${movie.poster}" class="img-responsive" alt="Responsive image" style="height: 450px; width: 300px;" onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                        <img th:src="${movie.poster}" class="img-responsive" alt="Responsive image"
+                            style="height: 450px; width: 300px;"
+                            onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
                     </div>
                 </div>
                 <div class="row">
@@ -47,8 +48,12 @@
             </div>
         </div>
     </div>
-
+    
     <div th:replace="footer :: footer"></div>
 
 </body>
+
+
+    
+
 </html>

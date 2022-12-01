@@ -3,14 +3,14 @@
 <head>
     <th:block th:include="head :: head" />
     <title>Movies</title>
+<link type="image/png" sizes="96x96" rel="icon" href="icons8-film-reel-96.png">
+
 </head>
 <body>
         <div th:replace="navbar :: navbar"></div>
 
-
-    <div class="container">
-        <!-- // SHOW MOVIES in grid format with poster (300x450), title, genre, rating, and buy tickets button -->
-        <!-- // source: Home Controller model.addAttribute("movies", movieService.findAll()); --> 
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
+      
         
         <div class="row">
             <div class="col-md-12">
