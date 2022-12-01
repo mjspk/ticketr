@@ -23,7 +23,7 @@ public class EmailService {
     @Autowired
     private Environment env;
 
-    public void sendEmail(String to, String subject, String body) {
+    private void sendEmail(String to, String subject, String body) {
         String username = env.getProperty("spring.mail.username");
         String password = env.getProperty("spring.mail.password");
         String host = env.getProperty("spring.mail.host");

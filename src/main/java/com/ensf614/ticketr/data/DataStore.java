@@ -917,12 +917,9 @@ public class DataStore implements IDataStore {
 
         Response<Boolean> response = new Response<>();
         try {
-            String sql = "DELETE FROM showtime WHERE movie_id = " + id;
+            String sql = "DELETE FROM movie inner join showtime on movie.id = showtime.movie_id WHERE movie.id = "
+                    + id;
             PreparedStatement stmt = getPreparedStatement(sql);
-            stmt.executeUpdate();
-            stmt.clearBatch();
-            sql = "DELETE FROM movie WHERE id = " + id;
-            stmt = getPreparedStatement(sql);
             stmt.executeUpdate();
             stmt.clearBatch();
             response.setSuccess(true);
@@ -941,12 +938,9 @@ public class DataStore implements IDataStore {
 
         Response<Boolean> response = new Response<>();
         try {
-            String sql = "DELETE FROM user_role WHERE user_id = " + id;
+            String sql = "delete from user inner join user_role on user.id = user_role.user_id inner join ticket on user.id = ticket.user_id inner join payment on user.id = payment.user_id inner join card on user.id = card.user_id where user.id ="
+                    + id;
             PreparedStatement stmt = getPreparedStatement(sql);
-            stmt.executeUpdate();
-            stmt.clearBatch();
-            sql = "DELETE FROM user WHERE id = " + id;
-            stmt = getPreparedStatement(sql);
             stmt.executeUpdate();
             stmt.clearBatch();
             response.setSuccess(true);
@@ -982,6 +976,19 @@ public class DataStore implements IDataStore {
                 user.setPhone(rs.getString("phone"));
                 user.setPassword(rs.getString("password"));
                 users.add(user);
+            }
+            for (User user : users) {
+                sql = "SELECT * FROM user_role join role on user_role.role_id = role.id WHERE user_id = "
+                        + user.getId();
+                rs = stmt.executeQuery(sql);
+                Set<Role> roles = new HashSet<Role>();
+                while (rs.next()) {
+                    Role role = new Role();
+                    role.setId(rs.getInt("id"));
+                    role.setName(rs.getString("name"));
+                    roles.add(role);
+                }
+                user.setRoles(roles);
             }
             response.setSuccess(true);
             response.setMessage("Users fetched successfully");

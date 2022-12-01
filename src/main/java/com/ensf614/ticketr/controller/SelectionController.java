@@ -41,31 +41,48 @@ public class SelectionController {
             }
         }
 
-        if (selection.getSelectedTheaterId() == 0) {
+        if (mySelection.getSelectedTheaterId() == 0) {
             selection.setSelectedTheater(selection.getTheaters().get(0));
+        } else {
+            for (Theater theater : selection.getTheaters()) {
+                if (theater.getId() == mySelection.getSelectedTheaterId()) {
+                    selection.setSelectedTheater(theater);
+                    break;
+                }
+            }
         }
 
         Response<ArrayList<Showtime>> response3 = dataStore.getShowtimes(movieId, selection.getSelectedTheaterId());
         if (response3.isSuccess()) {
             selection.setShowtimes(response3.getData());
-            if (selection.getSelectedShowtimeId() == 0) {
-                if (selection.getShowtimes().size() > 0) {
+            if (selection.getShowtimes().size() > 0) {
+                if (mySelection.getSelectedShowtimeId() == 0) {
                     selection.setSelectedShowtime(selection.getShowtimes().get(0));
                 } else {
-                    model.addAttribute("message", "No showtimes available for this movie and theater");
+                    for (Showtime showtime : selection.getShowtimes()) {
+                        if (showtime.getId() == mySelection.getSelectedShowtimeId()) {
+                            selection.setSelectedShowtime(showtime);
+                            break;
+                        }
+                    }
+                }
+                Response<ArrayList<Seat>> response4 = dataStore.getSeats(movieId, selection.getSelectedShowtimeId());
+                if (response4.isSuccess()) {
+                    selection.setSeats(response4.getData());
+                } else {
+                    model.addAttribute("message", response4.getMessage());
                     return "error";
                 }
-            }
-            Response<ArrayList<Seat>> response4 = dataStore.getSeats(movieId, selection.getSelectedShowtimeId());
-            if (response4.isSuccess()) {
-                selection.setSeats(response4.getData());
             } else {
-                model.addAttribute("message", response4.getMessage());
-                return "error";
+                selection.setSeats(new ArrayList<Seat>());
+                selection.setSelectedShowtime(new Showtime());
+                model.addAttribute("message", "No showtimes available for this movie and theater");
             }
+
             model.addAttribute("selection", selection);
             session.setAttribute("selection", selection);
             return "select";
+
         } else {
             model.addAttribute("message", response3.getMessage());
             return "error";
@@ -97,7 +114,6 @@ public class SelectionController {
             return "error";
         }
         return "redirect:/checkout";
-
 
     }
 }
