@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="head :: head" />
+    <title>cancelConfirm</title>
+</head>
+<body>
+    <div th:replace="navbar :: navbar"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h2>Cancellation Confirmed!</h2>
+                <form action="#" th:action="@{/ticket/cancel}" method="post" th:text="${message}">
+                    <p th:text="${message}"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div th:replace="footer :: footer"></div>
+</body>
+</html>

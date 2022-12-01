@@ -13,7 +13,7 @@ import com.ensf614.ticketr.model.AppUserDetailsService;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig  {
+public class WebSecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,8 +28,11 @@ public class WebSecurityConfig  {
                                                                 "/payment",
                                                                 "/userinfo",
                                                                 "/checkout",
-                                                                 "/search",
-                                                                  "/news")
+                                                                "/search",
+                                                                "/news",
+                                                                "/cancel",
+                                                                "/ticket/cancel",
+                                                                "/myticketsguest")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .formLogin((form) -> form
@@ -47,7 +50,5 @@ public class WebSecurityConfig  {
         public UserDetailsService userDetailsService() {
                 return new AppUserDetailsService();
         }
-
-       
 
 }
