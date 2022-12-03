@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
 
@@ -17,7 +18,7 @@ import com.ensf614.ticketr.model.Response;
 public class SelectionController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/select/{movieId}")
     public String buyTickets(HttpSession session, Model model, @PathVariable int movieId, Selection mySelection) {
@@ -98,12 +99,16 @@ public class SelectionController {
         selection.setSelectedSeatsString(myselection.getSelectedSeatsString());
         if (selection.getSelectedSeatsString().length == 0) {
             model.addAttribute("message", "Please select at least one seat.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.checkSeats(selection.getSelectedShowtimeId(), selection.getSelectedSeatsString())) {
             model.addAttribute("message", "Sorry, one or more of the seats you selected are no longer available.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.ifSeatsExceedsTenPercentage(selection.getSelectedMovie().getId(),
@@ -111,7 +116,9 @@ public class SelectionController {
                 selection.getSelectedSeatsString())) {
             model.addAttribute("message",
                     "Sorry, one or more of the seats you selected exceeds 10% of the total seats for upcoming showtime.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
         return "redirect:/checkout";
 

@@ -1,21 +1,23 @@
 package com.ensf614.ticketr.model;
 
-public class Offers {
+public class Offer {
     private int id;
     private int userId;
     private Double price;
     private String offer;
     private int quantity;
+    private Movie movie;
 
-    public Offers() {
+    public Offer() {
     }
 
-    public Offers(int id, int userId, Double price, String offer, int quantity) {
+    public Offer(int id, int userId, Double price, String offer, int quantity,Movie movie) {
         this.id = id;
         this.userId = userId;
         this.price = price;
         this.offer = offer;
         this.quantity = quantity;
+        this.movie = movie;
     }
 
     public int getId() {
@@ -56,6 +58,14 @@ public class Offers {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
     }
 
     

@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Response;
@@ -26,7 +27,7 @@ import com.ensf614.ticketr.service.EmailService;
 public class CheckoutController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/checkout")
     public String showCheckoutPage(HttpSession session, Model model) {
@@ -51,11 +52,18 @@ public class CheckoutController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth.getName() != "anonymousUser") {
                 User user = dataStore.getUserByEmail(auth.getName());
-                Card defaultcard = dataStore.getDefaultCard(user.getId());
-                selection.setCard(defaultcard);
-                selection.setUser(user);
-                session.setAttribute("selection", selection);
-                model.addAttribute("selection", selection);
+                Response<Card> response = dataStore.getDefaultCard(user.getId());
+                if (response.isSuccess()) {
+                    selection.setCard(response.getData());
+                    selection.setUser(user);
+                    session.setAttribute("selection", selection);
+                    model.addAttribute("selection", selection);
+                } else {
+                    model.addAttribute("message",
+                            "You must add a payment method to your account before you can purchase tickets.");
+                    return "redirect:/changepayment";
+                }
+
                 return "checkout";
             } else {
                 session.setAttribute("selection", selection);
@@ -79,9 +87,11 @@ public class CheckoutController {
         if (selection == null) {
             return "redirect:/";
         }
+
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);
         if (receiptResponse.isSuccess()) {
-            Response<ArrayList<Ticket>> ticketResponse = dataStore.addTickets(selection.getSelectedTickets());
+            Response<ArrayList<Ticket>> ticketResponse = dataStore.addTickets(selection.getSelectedTickets(),
+                    selection.getUser().getId());
             if (ticketResponse.isSuccess()) {
                 selection.setSelectedTickets(ticketResponse.getData());
                 session.setAttribute("selection", selection);

@@ -13,11 +13,9 @@
       
         
         <div class="row">
-            <div class="col-md-12">
-                <h1>Now Showing</h1>
-            </div>
+           
 
-            <div class="col-md-3" th:each="movie : ${movies}" style="height: 660px;">
+            <div class="col-md-3" th:each="movie : ${movies}" style="height: 670px;">
                <!-- all rows same hieght -->
                 <div class="row">
                     <div class="col-md-12">
@@ -37,6 +35,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <p th:text="${movie.rating}"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p th:text="${movie.status}"></p>
                     </div>
                 </div>
                 <div class="row">

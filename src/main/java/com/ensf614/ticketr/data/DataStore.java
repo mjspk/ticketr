@@ -6,12 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Movie;
 import com.ensf614.ticketr.model.News;
+import com.ensf614.ticketr.model.Offer;
 import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Role;
@@ -102,6 +104,7 @@ public class DataStore implements IDataStore {
 
     }
 
+    @Override
     public Response<User> addUser(User user) {
         Response<User> response = new Response<User>();
         try {
@@ -235,6 +238,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Movie>> getAllShowingMovies() {
         Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
         try {
@@ -251,6 +255,9 @@ public class DataStore implements IDataStore {
                 movie.setDuration(rs.getString("duration"));
                 movie.setReleaseDate(rs.getString("release_date"));
                 movie.setPoster(rs.getString("poster"));
+                movie.setTrailer(rs.getString("trailer"));
+                movie.setStatus(rs.getString("status"));
+
                 movies.add(movie);
             }
             response.setSuccess(true);
@@ -264,7 +271,7 @@ public class DataStore implements IDataStore {
         }
     }
 
-    // get upcoming movies
+    @Override
     public Response<ArrayList<Movie>> getUpcomingMovies() {
         Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
         try {
@@ -281,6 +288,9 @@ public class DataStore implements IDataStore {
                 movie.setDuration(rs.getString("duration"));
                 movie.setReleaseDate(rs.getString("release_date"));
                 movie.setPoster(rs.getString("poster"));
+                movie.setTrailer(rs.getString("trailer"));
+                movie.setStatus(rs.getString("status"));
+
                 movies.add(movie);
             }
             response.setSuccess(true);
@@ -312,6 +322,7 @@ public class DataStore implements IDataStore {
         return null;
     }
 
+    @Override
     public User getUserByEmail(String email) {
         try {
             Statement stmt = getStatement();
@@ -355,6 +366,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Movie> getMovie(int movieId) {
 
         Response<Movie> response = new Response<Movie>();
@@ -371,6 +383,9 @@ public class DataStore implements IDataStore {
                 movie.setDuration(rs.getString("duration"));
                 movie.setReleaseDate(rs.getString("release_date"));
                 movie.setPoster(rs.getString("poster"));
+                movie.setTrailer(rs.getString("trailer"));
+                movie.setStatus(rs.getString("status"));
+
                 response.setSuccess(true);
                 response.setMessage("Movie retrieved successfully");
                 response.setData(movie);
@@ -387,6 +402,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Showtime>> getShowtimes(int movieId, int theaterId) {
 
         Response<ArrayList<Showtime>> response = new Response<ArrayList<Showtime>>();
@@ -413,6 +429,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Theater>> getAllTheaters(int movieId) {
 
         Response<ArrayList<Theater>> response = new Response<ArrayList<Theater>>();
@@ -438,6 +455,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Showtime> getShowtime(int showtimeId) {
 
         Response<Showtime> response = new Response<Showtime>();
@@ -483,6 +501,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Seat>> getSeats(int movieId, int showtimeId) {
 
         Response<ArrayList<Seat>> response = new Response<ArrayList<Seat>>();
@@ -513,6 +532,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Seat> getSeat(int seatId) {
 
         Response<Seat> response = new Response<Seat>();
@@ -543,7 +563,8 @@ public class DataStore implements IDataStore {
         }
     }
 
-    public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets) {
+    @Override
+    public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets, int userId) {
 
         Response<ArrayList<Ticket>> response = new Response<ArrayList<Ticket>>();
         try {
@@ -554,13 +575,12 @@ public class DataStore implements IDataStore {
                 Ticket ticket = tickets.get(i);
                 ticket.setStatus("reserved");
                 sql += "(" + ticket.getShowtime().getId() + ", " + ticket.getSeat().getId() + ", "
-                        + ticket.getUserId() + ", " + ticket.getPrice() + ", '" + ticket.getStatus() + "')";
+                        + userId + ", " + ticket.getPrice() + ", '" + ticket.getStatus() + "')";
                 if (i < tickets.size() - 1) {
                     sql += ", ";
                 }
             }
             PreparedStatement praperedStmt = getPreparedStatement(sql);
-
             praperedStmt.executeUpdate();
             praperedStmt.clearBatch();
             ArrayList<Integer> ticketIds = new ArrayList<Integer>();
@@ -586,6 +606,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<List<Ticket>> getTicketsByUserEmail(String name) {
 
         Response<List<Ticket>> response = new Response<List<Ticket>>();
@@ -635,6 +656,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<News>> getMoviesNews() {
         Response<ArrayList<News>> response = new Response<>();
         try {
@@ -690,6 +712,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public boolean isEmailInUse(String email) {
         try {
             Statement stmt = getStatement();
@@ -705,6 +728,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public boolean checkSeats(int selectedShowtimeId, String[] selectedSeatsString) {
 
         try {
@@ -734,6 +758,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public boolean ifSeatsExceedsTenPercentage(int movieId, int theaterId, int showtimeId,
             String[] selectedSeatsString) {
         try {
@@ -742,10 +767,9 @@ public class DataStore implements IDataStore {
             String sql = "SELECT status FROM movie WHERE id = " + movieId + " and status = 'upcoming'";
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next()) {
-                sql = "SELECT * FROM seat join showtime on seat.showtime_id = showtime.id WHERE showtime.movie_id = "
-                        + movieId + " AND showtime.theater_id = " + theaterId + " AND showtime.id = " + showtimeId
+                sql = "SELECT * FROM seat join ticket on seat.id = ticket.seat_id join theater on theater.id = seat.theater_id join showtime on theater.id = showtime.theater_id join movie on movie.id = showtime.movie_id WHERE movie.id = "
+                        + movieId + " AND theater.id = " + theaterId + " AND showtime.id = " + showtimeId
                         + " AND seat.status = 'booked'";
-                rs = stmt.executeQuery(sql);
                 List<Seat> bookedSeats = new ArrayList<Seat>();
                 while (rs.next()) {
                     Seat seat = new Seat();
@@ -755,8 +779,8 @@ public class DataStore implements IDataStore {
                     seat.setStatus(rs.getString("status"));
                     bookedSeats.add(seat);
                 }
-                sql = "SELECT * FROM seat join showtime on seat.showtime_id = showtime.id WHERE showtime.movie_id = "
-                        + movieId + " AND showtime.theater_id = " + theaterId + " AND showtime.id = " + showtimeId;
+                sql = "SELECT * FROM seat join theater on theater.id = seat.theater_id join showtime on theater.id = showtime.theater_id join movie on movie.id = showtime.movie_id WHERE movie.id = "
+                        + movieId + " AND theater.id = " + theaterId + " AND showtime.id = " + showtimeId;
                 rs = stmt.executeQuery(sql);
                 List<Seat> allSeats = new ArrayList<Seat>();
                 while (rs.next()) {
@@ -786,28 +810,29 @@ public class DataStore implements IDataStore {
         }
     }
 
-    public Response<User> updateUserPayment(User user, Card card) {
-        Response<User> response = new Response<>();
+    @Override
+    public Response<Card> updateUserPayment(int userId, Card card) {
+        Response<Card> response = new Response<>();
         try {
             Statement stmt = getStatement();
             // update card if it exists else create a new one
-            String sql = "SELECT * FROM card WHERE user_id = " + user.getId() + " ";
+            String sql = "SELECT * FROM card WHERE user_id = " + userId + " ";
             ResultSet rs = stmt.executeQuery(sql);
             if (rs.next()) {
                 sql = "UPDATE card SET card_number = '" + card.getCardNumber() + "', card_cvv = '" + card.getCvv()
                         + "', card_expiry = '" + card.getExpiryDate() + "',card_name = '" + card.getCardHolderName()
-                        + "' WHERE user_id = " + card.getUserId() + " ";
+                        + "' WHERE user_id = " + userId + " ";
                 stmt.executeUpdate(sql);
             } else {
                 sql = "INSERT INTO card (card_number, card_cvv, card_expiry, card_name, user_id) VALUES ('"
                         + card.getCardNumber() + "', '" + card.getCvv() + "', '" + card.getExpiryDate() + "', '"
-                        + card.getCardHolderName() + "', " + card.getUserId() + ")";
+                        + card.getCardHolderName() + "', " + userId + ")";
                 stmt.executeUpdate(sql);
             }
             stmt.executeUpdate(sql);
-            user.setDefaultCard(card);
             response.setSuccess(true);
-            response.setMessage("User updated successfully");
+            response.setMessage("Card updated successfully");
+            response.setData(card);
             return response;
         } catch (Exception e) {
             response.setSuccess(false);
@@ -816,6 +841,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Movie>> searchMovies(String query) {
 
         Response<ArrayList<Movie>> response = new Response<>();
@@ -853,6 +879,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Receipt> processPayment(Selection selection) {
 
         Response<Receipt> response = new Response<>();
@@ -890,6 +917,7 @@ public class DataStore implements IDataStore {
 
     }
 
+    @Override
     public Response<Boolean> addMovie(Movie movie) {
 
         Response<Boolean> response = new Response<>();
@@ -913,15 +941,19 @@ public class DataStore implements IDataStore {
 
     }
 
+    @Override
     public Response<Boolean> deleteMovie(int id) {
 
         Response<Boolean> response = new Response<>();
         try {
-            String sql = "DELETE FROM movie inner join showtime on movie.id = showtime.movie_id WHERE movie.id = "
+
+            Statement stmt = getStatement();
+            String sql = "DELETE FROM showtime WHERE showtime.movie_id = "
                     + id;
-            PreparedStatement stmt = getPreparedStatement(sql);
-            stmt.executeUpdate();
-            stmt.clearBatch();
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM movie WHERE movie.id = "
+                    + id;
+            stmt.executeUpdate(sql);
             response.setSuccess(true);
             response.setMessage("Movie deleted successfully");
             response.setData(true);
@@ -934,15 +966,21 @@ public class DataStore implements IDataStore {
 
     }
 
+    @Override
     public Response<Boolean> deleteUser(int id) {
 
         Response<Boolean> response = new Response<>();
         try {
-            String sql = "delete from user inner join user_role on user.id = user_role.user_id inner join ticket on user.id = ticket.user_id inner join payment on user.id = payment.user_id inner join card on user.id = card.user_id where user.id ="
-                    + id;
-            PreparedStatement stmt = getPreparedStatement(sql);
-            stmt.executeUpdate();
-            stmt.clearBatch();
+
+            Statement stmt = getStatement();
+            String sql = "DELETE FROM card WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM payment WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM ticket WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM user WHERE id = " + id;
+            stmt.executeUpdate(sql);
             response.setSuccess(true);
             response.setMessage("User deleted successfully");
             response.setData(true);
@@ -955,6 +993,7 @@ public class DataStore implements IDataStore {
 
     }
 
+    @Override
     public Response<ArrayList<User>> getAllUsers() {
 
         Response<ArrayList<User>> response = new Response<>();
@@ -1001,25 +1040,36 @@ public class DataStore implements IDataStore {
         }
     }
 
-    public Card getDefaultCard(int id) {
+    @Override
+    public Response<Card> getDefaultCard(int id) {
+
+        Response<Card> response = new Response<>();
         try {
+            String sql = "SELECT * FROM card WHERE user_id = " + id;
             Statement stmt = getStatement();
-            String sql = "SELECT * FROM card WHERE user_id = " + id + " ";
             ResultSet rs = stmt.executeQuery(sql);
             Card card = new Card();
-            while (rs.next()) {
+            if (rs.next()) {
                 card.setId(rs.getInt("id"));
+                card.setUserId(rs.getInt("user_id"));
                 card.setCardNumber(rs.getString("card_number"));
                 card.setCardHolderName(rs.getString("card_name"));
                 card.setExpiryDate(rs.getString("card_expiry"));
                 card.setCvv(rs.getString("card_cvv"));
             }
-            return card;
+            response.setSuccess(true);
+            response.setMessage("Default card fetched successfully");
+            response.setData(card);
+            return response;
         } catch (Exception e) {
-            return null;
+            response.setSuccess(false);
+            response.setMessage("Error fetching default card");
+            return response;
         }
+
     }
 
+    @Override
     public Response<Boolean> editRoles(User user) {
 
         Response<Boolean> response = new Response<>();
@@ -1047,6 +1097,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public ArrayList<Role> getAllRoles() {
         try {
             Statement stmt = getStatement();
@@ -1065,6 +1116,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<User> getUser(int id) {
 
         Response<User> response = new Response<>();
@@ -1097,6 +1149,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<User> updateUser(User user) {
         Response<User> response = new Response<>();
         try {
@@ -1119,6 +1172,11 @@ public class DataStore implements IDataStore {
             response.setMessage("Error updating user");
             return response;
         }
+    }
+
+    @Override
+    public Response<ArrayList<Offer>> getOffers() {
+        return null;
     }
 
 }
