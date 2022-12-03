@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Selection;
@@ -18,7 +19,7 @@ import com.ensf614.ticketr.model.User;
 @Controller
 public class PaymentController {
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/changepayment")
     public String changePayment(Model model, Card defaultCard, HttpSession session) {

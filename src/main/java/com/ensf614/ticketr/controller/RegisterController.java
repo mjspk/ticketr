@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Role;
 import com.ensf614.ticketr.model.Selection;
@@ -19,7 +20,7 @@ import com.ensf614.ticketr.model.User;
 public class RegisterController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/register")
     public String registerPage(Model model) {

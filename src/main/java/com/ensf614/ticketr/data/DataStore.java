@@ -238,6 +238,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Movie>> getAllShowingMovies() {
         Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
         try {
@@ -270,7 +271,7 @@ public class DataStore implements IDataStore {
         }
     }
 
-    // get upcoming movies
+    @Override
     public Response<ArrayList<Movie>> getUpcomingMovies() {
         Response<ArrayList<Movie>> response = new Response<ArrayList<Movie>>();
         try {
@@ -321,6 +322,7 @@ public class DataStore implements IDataStore {
         return null;
     }
 
+    @Override
     public User getUserByEmail(String email) {
         try {
             Statement stmt = getStatement();
@@ -364,6 +366,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Movie> getMovie(int movieId) {
 
         Response<Movie> response = new Response<Movie>();
@@ -399,6 +402,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Showtime>> getShowtimes(int movieId, int theaterId) {
 
         Response<ArrayList<Showtime>> response = new Response<ArrayList<Showtime>>();
@@ -425,6 +429,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Theater>> getAllTheaters(int movieId) {
 
         Response<ArrayList<Theater>> response = new Response<ArrayList<Theater>>();
@@ -450,6 +455,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Showtime> getShowtime(int showtimeId) {
 
         Response<Showtime> response = new Response<Showtime>();
@@ -495,6 +501,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Seat>> getSeats(int movieId, int showtimeId) {
 
         Response<ArrayList<Seat>> response = new Response<ArrayList<Seat>>();
@@ -525,6 +532,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<Seat> getSeat(int seatId) {
 
         Response<Seat> response = new Response<Seat>();
@@ -555,6 +563,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets, int userId) {
 
         Response<ArrayList<Ticket>> response = new Response<ArrayList<Ticket>>();
@@ -597,6 +606,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<List<Ticket>> getTicketsByUserEmail(String name) {
 
         Response<List<Ticket>> response = new Response<List<Ticket>>();
@@ -646,6 +656,7 @@ public class DataStore implements IDataStore {
         }
     }
 
+    @Override
     public Response<ArrayList<News>> getMoviesNews() {
         Response<ArrayList<News>> response = new Response<>();
         try {

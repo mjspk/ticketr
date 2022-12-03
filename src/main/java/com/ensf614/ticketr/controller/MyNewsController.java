@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
 
@@ -13,7 +14,7 @@ import com.ensf614.ticketr.model.Response;
 public class MyNewsController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/news")
     public String myNewsPage(Model model) {
