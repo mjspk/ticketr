@@ -87,6 +87,7 @@ public class CheckoutController {
         if (selection == null) {
             return "redirect:/";
         }
+
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);
         if (receiptResponse.isSuccess()) {
             Response<ArrayList<Ticket>> ticketResponse = dataStore.addTickets(selection.getSelectedTickets(),
