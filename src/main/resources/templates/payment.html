@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Payment Method</title>
+    <th:block th:include="head :: head"/>
+
+</head>
+
+<body>
+    
+        <div th:replace="navbar :: navbar"></div>
+    
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
+        <div class="row">
+           
+
+        <div class="col-md-6 col-md-offset-3">    
+            <div class="col-md-12">
+                <h1>Payment Method</h1>
+                <p th:text="${message}"></p>
+                <p>You need to add your payment method to activate your account and you will pay 20$ as an activation fee and you
+                    will get the benefits like:</p>
+                <p>1- Offers</p>
+                <p>2- Full refund when canceling tickets</p>
+                <p>3- Early movies announcement</p>
+                <p>4- And more...</p>
+            </div>
+            <form th:action="@{/register}" method="post" th:object="${user}" sec:authorize="isAnonymous()">
+                <div class="form-group row">
+                    <label for="cardNumber" class="col-sm-2 col-form-label">Card Number</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="cardNumber" placeholder="Card Number"
+                            th:field="*{defaultCard.cardNumber}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="cardName" class="col-sm-2 col-form-label">Name on Card</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="cardName" placeholder="Name on Card"
+                            th:field="*{defaultCard.cardHolderName}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="cardExpiration" class="col-sm-2 col-form-label">Expiration Date</label>
+                    <div class="col-sm-5">
+                        <input type="text" class="form-control" id="cardExpiration" placeholder="Expiration Date"
+                            th:field="*{defaultCard.expiryDate}">
+                    </div>
+                    <label for="cardCVV" class="col-sm-1 col-form-label">CVV</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="cardCVV" placeholder="CVV" th:field="*{defaultCard.cvv}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        
+    </div>
+    
+    <div th:replace="footer :: footer"></div>
+
+</body>
+
+
+    
+
+</html>

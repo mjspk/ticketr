@@ -24,5 +24,6 @@ public interface IDataStore {
     // get all seats for specific showtime
     public Response < ArrayList < Seat > > getSeatsByShowtime(Showtime showtime);
 
-    // 
+    // get user default card info
+    public Response < Card > getDefaultCard(User user);
 }

@@ -1,79 +1,85 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
+
+<head>
     <title>User info</title>
     <th:block th:include="head :: head" />
 </head>
 
 <body>
     <div th:replace="navbar :: navbar"></div>
-    
-    <div class="container">
+
+    <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <p th:text="${message}"></p>
             </div>
-           <div class="col-md-12">
+            <div class="col-md-12">
                 <div class="text-center">
                     <a th:href="@{/login}" class="btn btn-primary">Login</a>
                 </div>
-           </div>
+            </div>
             <div class="col-md-12">
                 <h4 class="text-center">continue as guest</h4>
                 <form th:action="@{/saveuser}" method="post" th:object="${selection}">
-                    <input type="hidden" th:name="movieId" th:field="*{selectedMovie.id}" />
-                    <input type="hidden" th:name="theaterId" th:field="*{selectedTheaterId}" />
-                    <input type="hidden" th:name="showtimeId" th:field="*{selectedShowtimeId}" />
-                    <input type="hidden" th:name="selectedSeats" th:field="*{selectedSeats}" />
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label for="firstName">First Name</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" th:field="*{user.firstName}">
+                            <input type="text" class="form-control" id="firstName" name="firstName"
+                                placeholder="First Name" th:field="*{user.firstName}">
                         </div>
                         <div class="col-md-6">
                             <label for="lastName">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" th:field="*{user.lastName}">
+                            <input type="text" class="form-control" id="lastName" name="lastName"
+                                placeholder="Last Name" th:field="*{user.lastName}">
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label for="email">Email</label>
-                            <input type="text" class="form-control" id="email" name="email" placeholder="Email" th:field="*{user.email}">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Email"
+                                th:field="*{user.email}">
                         </div>
                         <div class="col-md-6">
                             <label for="phone">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" th:field="*{user.phone}">
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone"
+                                th:field="*{user.phone}">
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label for="address">Address</label>
-                            <input type="text" class="form-control" id="address" name="address" placeholder="Address" th:field="*{user.address}">
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Address"
+                                th:field="*{user.address}">
                         </div>
                         <div class="col-md-6">
                             <label for="city">City</label>
-                            <input type="text" class="form-control" id="city" name="city" placeholder="City" th:field="*{user.city}">
+                            <input type="text" class="form-control" id="city" name="city" placeholder="City"
+                                th:field="*{user.city}">
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label for="province">State</label>
-                            <input type="text" class="form-control" id="province" name="province" placeholder="province" th:field="*{user.province}">
+                            <input type="text" class="form-control" id="province" name="province" placeholder="province"
+                                th:field="*{user.province}">
                         </div>
                         <div class="col-md-6">
                             <label for="postal Code">Zip Code</label>
-                            <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="postal Code" th:field="*{user.postalCode}">
+                            <input type="text" class="form-control" id="postalCode" name="postalCode"
+                                placeholder="postal Code" th:field="*{user.postalCode}">
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Submit</button>
-                     
+
                 </form>
             </div>
         </div>
     </div>
-    <th:block th:include="footer :: footer"/>
+    <th:block th:include="footer :: footer" />
 </body>
+
 </html>

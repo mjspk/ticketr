@@ -6,16 +6,21 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.model.Card;
+import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Seat;
 import com.ensf614.ticketr.model.Selection;
-import com.ensf614.ticketr.model.Showtime;
 import com.ensf614.ticketr.model.Ticket;
+import com.ensf614.ticketr.model.User;
+import com.ensf614.ticketr.service.EmailService;
 
 @Controller
 public class CheckoutController {
@@ -41,11 +46,32 @@ public class CheckoutController {
             tickets.add(ticket);
         }
         selection.setSelectedTickets(tickets);
-        session.setAttribute("selection", selection);
-        model.addAttribute("selection", selection);
-        return "checkout";
+
+        if (selection.getUser().getEmail() == null) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth.getName() != "anonymousUser") {
+                User user = dataStore.getUserByEmail(auth.getName());
+                Card defaultcard = dataStore.getDefaultCard(user.getId());
+                selection.setCard(defaultcard);
+                selection.setUser(user);
+                session.setAttribute("selection", selection);
+                model.addAttribute("selection", selection);
+                return "checkout";
+            } else {
+                session.setAttribute("selection", selection);
+                model.addAttribute("selection", selection);
+                return "userinfo";
+            }
+        } else {
+            session.setAttribute("selection", selection);
+            model.addAttribute("selection", selection);
+            return "checkout";
+        }
 
     }
+
+    @Autowired
+    EmailService emailService;
 
     @PostMapping("/checkout")
     public String checkoutPage(HttpSession session, Model model) {
@@ -53,16 +79,22 @@ public class CheckoutController {
         if (selection == null) {
             return "redirect:/";
         }
-        ArrayList<Ticket> tickets = selection.getSelectedTickets();
-        Response<ArrayList<Ticket>> response = dataStore.addTickets(tickets);
-        if (response.isSuccess()) {
-            selection.setSelectedTickets(response.getData());
-            model.addAttribute("selection", selection);
-            model.addAttribute("message", response.getMessage());
-            session.removeAttribute("selection");
-            return "confirmation";
+        Response<Receipt> receiptResponse = dataStore.processPayment(selection);
+        if (receiptResponse.isSuccess()) {
+            Response<ArrayList<Ticket>> ticketResponse = dataStore.addTickets(selection.getSelectedTickets());
+            if (ticketResponse.isSuccess()) {
+                selection.setSelectedTickets(ticketResponse.getData());
+                session.setAttribute("selection", selection);
+                model.addAttribute("selection", selection);
+                emailService.sendHtmlReceipt(receiptResponse.getData());
+                return "confirmation";
+            } else {
+                model.addAttribute("message", ticketResponse.getMessage());
+                return "error";
+            }
+
         } else {
-            model.addAttribute("message", response.getMessage());
+            model.addAttribute("message", receiptResponse.getMessage());
             return "error";
         }
     }

@@ -1,8 +1,13 @@
 package com.ensf614.ticketr.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component("user")
@@ -19,8 +24,9 @@ public class User {
     private String postalCode;
     private String phone;
     private String password;
-
+    private Card defaultCard;
     private Set<Role> roles = new HashSet<>();
+    private String[] rolStrings;
 
     public User() {
 
@@ -33,6 +39,7 @@ public class User {
         this.email = email;
         this.address = address;
         this.password = password;
+        rolStrings = new String[] {};
     }
 
     public int getId() {
@@ -121,6 +128,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+
+        rolStrings = new String[roles.size()];
+        int i = 0;
+        for (Role role : roles) {
+            rolStrings[i] = role.getName();
+            i++;
+        }
+
     }
 
     public boolean isEnabled() {
@@ -129,6 +144,40 @@ public class User {
 
     public String getFullName() {
         return this.firstName + " " + this.lastName;
+    }
+
+    public Card getDefaultCard() {
+        return defaultCard;
+    }
+
+    public void setDefaultCard(Card defaultCard) {
+        this.defaultCard = defaultCard;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<Role> roles = this.getRoles();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
+    }
+
+    public String[] getRolStrings() {
+        return rolStrings;
+    }
+
+    public void setRolStrings(String[] rolStrings) {
+        this.rolStrings = rolStrings;
+    }
+
+    public String getRolesString() {
+        String rolesString = "";
+        for (String role : rolStrings) {
+            rolesString += role + ", ";
+        }
+        return rolesString;
     }
 
 }
