@@ -26,7 +26,8 @@
                         <p th:text="${selection.selectedMovie.description}"></p>
                         <p th:text="${selection.selectedMovie.duration}"></p>
                         <p th:text="${selection.selectedMovie.releaseDate}"></p>
-                        <a th:href="${selection.selectedMovie.trailer}" class="btn btn-primary">Watch Trailer</a>
+                        <p th:text="${selection.selectedMovie.status}"></p>
+                        <a th:href="${selection.selectedMovie.trailer}" target="_blank">Watch Trailer</a>
                     </div>
                     <div class="col-md-12">
                         <form th:action="@{/select/} + ${selection.selectedMovie.id}" th:object="${selection}"
@@ -59,12 +60,23 @@
                                 <div class="col-md-12">
                                     <div class="row">
                                         <div class="col-md-4" th:each="seat : ${selection.seats}">
-                                            <input th:field="*{selectedSeatsString}"
-                                                th:disabled="${seat.status == 'booked'}"
-                                                th:text="' N'+${seat.seat_number}+ ' R'+ ${seat.row_number} + ' ' + ${seat.status}+ ' '"
-                                                th:checked="${seat.status == 'booked'}" th:value="${seat.id}"
-                                                class="form-check-input" type="checkbox" id="inlineCheckbox1"
-                                                value="option1">
+                                            <div class="row">
+                                                <div class="col-md-1">
+                                                    <input th:field="*{selectedSeatsString}" type="checkbox"
+                                                        th:id="${seat.id}" th:value="${seat.id}" th:name="selectedSeats"
+                                                        th:checked="${seat.status == 'booked'}"
+                                                        th:disabled="${seat.status == 'booked'}">
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <i class="fa fa-couch" th:classappend="${seat.status=='booked' ? ' text-danger' : ' text-success'}"></i>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <label th:for="${seat.id}" th:text="${seat.seat_number}"></label>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <label th:for="${seat.id}" th:text="${seat.row_number}"></label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

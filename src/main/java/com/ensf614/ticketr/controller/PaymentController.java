@@ -21,42 +21,55 @@ public class PaymentController {
     DataStore dataStore;
 
     @RequestMapping("/changepayment")
-    public String changePayment(Model model, HttpSession session) {
+    public String changePayment(Model model, Card defaultCard, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = dataStore.getUserByEmail(auth.getName());
-        Card defaultcard = dataStore.getDefaultCard(user.getId());
-        user.setDefaultCard(defaultcard);
         if (user == null) {
             model.addAttribute("message", "You must be logged in to access this page.");
             return "error";
         } else {
-            model.addAttribute("user", user);
-            Card card =  new Card();
-            card.setUserId(user.getId());
-            model.addAttribute("card", card);
+            Response<Card> response = dataStore.getDefaultCard(user.getId());
+            if (response.isSuccess()) {
+                defaultCard = response.getData();
+                session.setAttribute("defaultCard", defaultCard);
+                model.addAttribute("defaultCard", defaultCard);
+            } else {
+                defaultCard.setUserId(user.getId());
+                session.setAttribute("defaultCard", defaultCard);
+                model.addAttribute("defaultCard", defaultCard);
+            }
+            model.addAttribute("card", new Card());
             return "changepayment";
         }
 
     }
 
     @PostMapping("/changepayment")
-    public String changePaymentPost(Model model, HttpSession session, User user, Card card) {
+    public String changePaymentPost(Model model, Card card, HttpSession session) {
+        Card defaultCard = (Card) session.getAttribute("defaultCard");
         if (card.getCardNumber().length() != 16) {
             model.addAttribute("message", "Invalid card number.");
+            model.addAttribute("defaultCard", defaultCard);
+            model.addAttribute("card", card);
             return "changepayment";
         }
         if (card.getExpiryDate().length() != 4) {
-            model.addAttribute("message", "Invalid card expiry.");
+            model.addAttribute("defaultCard", defaultCard);
+            model.addAttribute("message", "Invalid expiry date.");
+            model.addAttribute("card", card);
             return "changepayment";
         }
         if (card.getCvv().length() != 3) {
-            model.addAttribute("message", "Invalid card cvv.");
+            model.addAttribute("defaultCard", defaultCard);
+            model.addAttribute("message", "Invalid CVV.");
+            model.addAttribute("card", card);
             return "changepayment";
         }
 
-        Response<User> response = dataStore.updateUserPayment(user, card);
+        Response<Card> response = dataStore.updateUserPayment(defaultCard.getUserId(), card);
         if (response.isSuccess()) {
-            model.addAttribute("user", response.getData());
+            model.addAttribute("message", "Payment information updated.");
+            model.addAttribute("defaultCard", response.getData());
             model.addAttribute("card", new Card());
             return "changepayment";
         } else {
