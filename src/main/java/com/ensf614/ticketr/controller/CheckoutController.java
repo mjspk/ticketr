@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Response;
@@ -26,7 +27,7 @@ import com.ensf614.ticketr.service.EmailService;
 public class CheckoutController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/checkout")
     public String showCheckoutPage(HttpSession session, Model model) {
@@ -86,6 +87,7 @@ public class CheckoutController {
         if (selection == null) {
             return "redirect:/";
         }
+
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);
         if (receiptResponse.isSuccess()) {
             Response<ArrayList<Ticket>> ticketResponse = dataStore.addTickets(selection.getSelectedTickets(),

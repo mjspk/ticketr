@@ -21,6 +21,7 @@
             </div>
             <div class="col-md-12">
                 <h4 class="text-center">continue as guest</h4>
+                <p th:text="${message}"></p>
                 <form th:action="@{/saveuser}" method="post" th:object="${selection}">
                     <div class="form-group row">
                         <div class="col-md-6">

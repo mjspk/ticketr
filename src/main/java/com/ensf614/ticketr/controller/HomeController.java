@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
 
@@ -15,7 +16,7 @@ import com.ensf614.ticketr.model.Response;
 public class HomeController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/")
     public String home(Model model) {

@@ -1,6 +1,8 @@
 package com.ensf614.ticketr.data;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import com.ensf614.ticketr.model.*;
 
@@ -54,6 +56,30 @@ public interface IDataStore {
     public boolean checkSeats(int selectedShowtimeId, String[] selectedSeatsString);
 
     public boolean isEmailInUse(String email);
+
     public Response<User> addUser(User user);
 
+    Response<List<Ticket>> getTicketsByUserEmail(String name);
+
+    public Response<ArrayList<Ticket>> addTickets(ArrayList<Ticket> tickets, int userId);
+
+    public Response<ArrayList<News>> getMoviesNews();
+
+    public Response<Seat> getSeat(int seatId);
+
+    public Response<ArrayList<Seat>> getSeats(int movieId, int showtimeId);
+
+    public Response<Showtime> getShowtime(int showtimeId);
+
+    public Response<ArrayList<Theater>> getAllTheaters(int movieId);
+
+    public Response<ArrayList<Showtime>> getShowtimes(int movieId, int theaterId);
+
+    public Response<Movie> getMovie(int movieId);
+
+    public User getUserByEmail(String email);
+    
+    public Response<ArrayList<Movie>> getUpcomingMovies();
+    
+    public Response<ArrayList<Movie>> getAllShowingMovies();
 }

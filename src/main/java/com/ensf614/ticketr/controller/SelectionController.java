@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
 
@@ -17,7 +18,7 @@ import com.ensf614.ticketr.model.Response;
 public class SelectionController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/select/{movieId}")
     public String buyTickets(HttpSession session, Model model, @PathVariable int movieId, Selection mySelection) {
