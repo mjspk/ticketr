@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:include="head :: head" />
+    <title>mynews</title>
+</head>
+
+<body>
+    <div th:replace="navbar :: navbar"></div>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Movie News</h1>
+            </div>
+
+            <div class="col-md-3" th:each="n : ${news}" style="height: 630px;">
+                <!-- all rows same hieght -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <img th:src="${n.image}" class="img-responsive" alt="Responsive image"
+                            style="height: 400px; width: 300px;"
+                            onerror="this.src='https://www.thermaxglobal.com/wp-content/uploads/2020/05/image-not-found.jpg'">
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div th:replace="footer :: footer"></div>
+
+</body>
+
+</html>
