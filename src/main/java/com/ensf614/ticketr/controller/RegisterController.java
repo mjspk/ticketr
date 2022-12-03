@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Role;
 import com.ensf614.ticketr.model.Selection;
@@ -19,17 +20,15 @@ import com.ensf614.ticketr.model.User;
 public class RegisterController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/register")
-
     public String registerPage(Model model) {
         model.addAttribute("user", new User());
         return "register";
     }
 
-    // payment page
-    @RequestMapping("/payment")
+    @RequestMapping("/registeration_payment")
     public String paymentPage(User user, HttpSession session, Model model) {
         if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() || user.getEmail().isEmpty()
                 || user.getPassword().isEmpty() || user.getPhone().isEmpty()) {
@@ -44,34 +43,34 @@ public class RegisterController {
             model.addAttribute("message", "Email already in use");
             return "register";
         }
-        if (!user.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+        if (user.getPassword().length() < 8) {
             model.addAttribute("message",
                     "Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character");
             return "register";
         }
         session.setAttribute("user", user);
         model.addAttribute("user", user);
-        return "payment";
+        return "registeration_payment";
     }
 
     @PostMapping("/register")
     public String registerUser(User myuser, HttpSession session, Model model) {
 
-        if (myuser.getDefaultCard().getCardNumber().equals("0000000000000000")) {
+        if (myuser.getDefaultCard().getCardNumber().length() != 16) {
             model.addAttribute("message", "Please enter a valid credit card number");
-            return "payment";
+            return "registeration_payment";
         }
-        if (myuser.getDefaultCard().getExpiryDate().equals("00/00")) {
+        if (myuser.getDefaultCard().getExpiryDate().length() != 4) {
             model.addAttribute("message", "Please enter a valid credit card expiration date");
-            return "payment";
+            return "registeration_payment";
         }
-        if (myuser.getDefaultCard().getCvv().equals("000")) {
+        if (myuser.getDefaultCard().getCvv().length() != 3) {
             model.addAttribute("message", "Please enter a valid credit card cvv");
-            return "payment";
+            return "registeration_payment";
         }
         if (myuser.getDefaultCard().getCardHolderName().isEmpty()) {
             model.addAttribute("message", "Please enter a valid credit card name");
-            return "payment";
+            return "registeration_payment";
         }
 
         User user = (User) session.getAttribute("user");
@@ -94,6 +93,29 @@ public class RegisterController {
             return "redirect:/";
         }
         User user = myselection.getUser();
+
+        if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() || user.getEmail().isEmpty()
+                || user.getPhone().isEmpty()) {
+            model.addAttribute("message", "Please fill out all fields");
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "userinfo";
+        }
+
+        if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            model.addAttribute("message", "Please enter a valid email");
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "userinfo";
+        }
+
+        if (dataStore.isEmailInUse(user.getEmail())) {
+            model.addAttribute("message", "Email already in use");
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "userinfo";
+        }
+
         Response<User> response = dataStore.addUser(user);
         if (response.isSuccess()) {
             selection.setUser(response.getData());

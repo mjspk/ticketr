@@ -1,7 +1,4 @@
 
-
-
-
 create table movie (
     id int primary key auto_increment,
     title varchar(255) not null,
@@ -116,6 +113,13 @@ create table payment (
     unique (user_id, transaction_id)
 );
 
+
+create table credit  (
+    id int primary key auto_increment,
+    user_id int not null,
+    credit_amount double not null,
+    foreign key (user_id) references user(id),
+);
 
 
 

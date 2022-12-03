@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Selection;
 import com.ensf614.ticketr.model.User;
@@ -20,7 +21,7 @@ import com.ensf614.ticketr.securingweb.CustomAuthenticationProvider;
 public class LoginController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/login")
     public String login(HttpServletRequest request,Model model) {

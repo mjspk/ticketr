@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <th:block th:include="head :: head" />
     <title>myoffers</title>
 </head>
+
 <body>
-        <div th:replace="navbar :: navbar"></div>
+    <div th:replace="navbar :: navbar"></div>
 
     <div class="container" style="min-height: 100vh; padding-top: 70px;">
         <div class="row">
@@ -22,26 +24,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Avengers</td>
-                            <td>Buy 1 Get 1 Free</td>
-                            <td>$10</td>
-                            <td>10</td>
-                            <td><a href="http://localhost:8080/myoffers/1/edit">Edit</a> | <a href="http://localhost:8080/myoffers/1/delete">Delete</a></td>
-                        </tr>
-                        <tr>
-                            <td>Avengers</td>
-                            <td>Buy 1 Get 1 Free</td>
-                            <td>$10</td>
-                            <td>10</td>
-                            <td><a href="http://localhost:8080/myoffers/1/edit">Edit</a> | <a href="http://localhost:8080/myoffers/1/delete">Delete</a></td>
-                        </tr>
-                        <tr>
-                            <td>Avengers</td>
-                            <td>Buy 1 Get 1 Free</td>
-                            <td>$10</td>
-                            <td>10</td>
-                            <td><a href="http://localhost:8080/myoffers/1/edit">Edit</a> | <a href="http://localhost:8080/myoffers/1/delete">Delete</a></td>
+                        <tr th:each="offer : ${offers}">
+                            <td th:text="${offer.movie.title}"></td>
+                            <td th:text="${offer.offer}"></td>
+                            <td th:text="${offer.price}"></td>
+                            <td th:text="${offer.quantity}"></td>
+                            <td>
+                                <form th:action="@{offer/take}" method="post">
+                                    <input type="hidden" th:name="offerId" th:value="${offer.id}" />
+                                    <button type="submit" class="btn btn-danger">Take</button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -49,7 +42,8 @@
         </div>
     </div>
 
-        <div th:replace="footer :: footer"></div>
+    <div th:replace="footer :: footer"></div>
 
 </body>
+
 </html>

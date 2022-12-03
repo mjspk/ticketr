@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.*;
 import com.ensf614.ticketr.model.Response;
 
@@ -17,7 +18,7 @@ import com.ensf614.ticketr.model.Response;
 public class SelectionController {
 
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/select/{movieId}")
     public String buyTickets(HttpSession session, Model model, @PathVariable int movieId, Selection mySelection) {
@@ -41,31 +42,48 @@ public class SelectionController {
             }
         }
 
-        if (selection.getSelectedTheaterId() == 0) {
+        if (mySelection.getSelectedTheaterId() == 0) {
             selection.setSelectedTheater(selection.getTheaters().get(0));
+        } else {
+            for (Theater theater : selection.getTheaters()) {
+                if (theater.getId() == mySelection.getSelectedTheaterId()) {
+                    selection.setSelectedTheater(theater);
+                    break;
+                }
+            }
         }
 
         Response<ArrayList<Showtime>> response3 = dataStore.getShowtimes(movieId, selection.getSelectedTheaterId());
         if (response3.isSuccess()) {
             selection.setShowtimes(response3.getData());
-            if (selection.getSelectedShowtimeId() == 0) {
-                if (selection.getShowtimes().size() > 0) {
+            if (selection.getShowtimes().size() > 0) {
+                if (mySelection.getSelectedShowtimeId() == 0) {
                     selection.setSelectedShowtime(selection.getShowtimes().get(0));
                 } else {
-                    model.addAttribute("message", "No showtimes available for this movie and theater");
+                    for (Showtime showtime : selection.getShowtimes()) {
+                        if (showtime.getId() == mySelection.getSelectedShowtimeId()) {
+                            selection.setSelectedShowtime(showtime);
+                            break;
+                        }
+                    }
+                }
+                Response<ArrayList<Seat>> response4 = dataStore.getSeats(movieId, selection.getSelectedShowtimeId());
+                if (response4.isSuccess()) {
+                    selection.setSeats(response4.getData());
+                } else {
+                    model.addAttribute("message", response4.getMessage());
                     return "error";
                 }
-            }
-            Response<ArrayList<Seat>> response4 = dataStore.getSeats(movieId, selection.getSelectedShowtimeId());
-            if (response4.isSuccess()) {
-                selection.setSeats(response4.getData());
             } else {
-                model.addAttribute("message", response4.getMessage());
-                return "error";
+                selection.setSeats(new ArrayList<Seat>());
+                selection.setSelectedShowtime(new Showtime());
+                model.addAttribute("message", "No showtimes available for this movie and theater");
             }
+
             model.addAttribute("selection", selection);
             session.setAttribute("selection", selection);
             return "select";
+
         } else {
             model.addAttribute("message", response3.getMessage());
             return "error";
@@ -81,12 +99,16 @@ public class SelectionController {
         selection.setSelectedSeatsString(myselection.getSelectedSeatsString());
         if (selection.getSelectedSeatsString().length == 0) {
             model.addAttribute("message", "Please select at least one seat.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.checkSeats(selection.getSelectedShowtimeId(), selection.getSelectedSeatsString())) {
             model.addAttribute("message", "Sorry, one or more of the seats you selected are no longer available.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.ifSeatsExceedsTenPercentage(selection.getSelectedMovie().getId(),
@@ -94,10 +116,11 @@ public class SelectionController {
                 selection.getSelectedSeatsString())) {
             model.addAttribute("message",
                     "Sorry, one or more of the seats you selected exceeds 10% of the total seats for upcoming showtime.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
         return "redirect:/checkout";
-
 
     }
 }
