@@ -16,12 +16,6 @@ public interface IDataStore {
 
     public Response<ArrayList<Movie>> getAllMovies();
 
-    public Response<ArrayList<Theater>> getTheatersByMovie(Movie movie);
-
-    public Response<ArrayList<Showtime>> getShowtimesByMovieAndTheater(Movie movie, Theater theater);
-
-    public Response<ArrayList<Seat>> getSeatsByShowtime(Showtime showtime);
-
     public Response<Card> getDefaultCard(User user);
 
     public Response<ArrayList<Offer>> getOffers();
@@ -77,15 +71,17 @@ public interface IDataStore {
 
     public Response<Movie> getMovie(int movieId);
 
-    public User getUserByEmail(String email);
-
     public Response<ArrayList<Movie>> getUpcomingMovies();
 
     public Response<ArrayList<Movie>> getAllShowingMovies();
 
     public Response<Boolean> deleteTicket(int id);
 
+    public Response<Boolean> cancelTicket(Ticket id);
+
     public Response<Ticket> getTicket(int id);
 
-    public Response<User> getUserResponseByEmail(String email);
+    public Response<User> getUserByEmail(String email);
+
+    public Response<Boolean> addUserCredit(int userId, double amount);
 }

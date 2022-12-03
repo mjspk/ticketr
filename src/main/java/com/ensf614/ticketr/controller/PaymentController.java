@@ -24,7 +24,8 @@ public class PaymentController {
     @RequestMapping("/changepayment")
     public String changePayment(Model model, Card defaultCard, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = dataStore.getUserByEmail(auth.getName());
+        Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
+        User user = responseuser.getData();
         if (user == null) {
             model.addAttribute("message", "You must be logged in to access this page.");
             return "error";

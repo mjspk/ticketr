@@ -51,7 +51,8 @@ public class CheckoutController {
         if (selection.getUser().getEmail() == null) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth.getName() != "anonymousUser") {
-                User user = dataStore.getUserByEmail(auth.getName());
+                Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
+                User user = responseuser.getData();
                 Response<Card> response = dataStore.getDefaultCard(user.getId());
                 if (response.isSuccess()) {
                     selection.setCard(response.getData());
