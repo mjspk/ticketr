@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ensf614.ticketr.data.DataStore;
+import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Card;
 import com.ensf614.ticketr.model.Movie;
 import com.ensf614.ticketr.model.Receipt;
@@ -28,7 +29,7 @@ import com.ensf614.ticketr.service.EmailService;
 @Controller
 public class AdminController {
     @Autowired
-    DataStore dataStore;
+    IDataStore dataStore;
 
     @RequestMapping("/admin")
     public String adminPage(Model model) {
@@ -121,7 +122,7 @@ public class AdminController {
 
         } else {
             model.addAttribute("message", response.getMessage());
-            return "addmovie";
+            return "adminmovies";
         }
     }
 

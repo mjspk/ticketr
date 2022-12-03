@@ -8,12 +8,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-import com.ensf614.ticketr.model.AppUserDetailsService;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig  {
+public class WebSecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -25,11 +24,11 @@ public class WebSecurityConfig  {
                                                                 "/register",
                                                                 "/select/{movieId}",
                                                                 "/saveuser",
-                                                                "/payment",
+                                                                "/registeration_payment",
                                                                 "/userinfo",
                                                                 "/checkout",
-                                                                 "/search",
-                                                                  "/news")
+                                                                "/search",
+                                                                "/news")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .formLogin((form) -> form
@@ -43,11 +42,5 @@ public class WebSecurityConfig  {
                 return http.build();
         }
 
-        @Bean
-        public UserDetailsService userDetailsService() {
-                return new AppUserDetailsService();
-        }
-
-       
-
+      
 }

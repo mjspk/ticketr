@@ -98,12 +98,16 @@ public class SelectionController {
         selection.setSelectedSeatsString(myselection.getSelectedSeatsString());
         if (selection.getSelectedSeatsString().length == 0) {
             model.addAttribute("message", "Please select at least one seat.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.checkSeats(selection.getSelectedShowtimeId(), selection.getSelectedSeatsString())) {
             model.addAttribute("message", "Sorry, one or more of the seats you selected are no longer available.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
 
         if (dataStore.ifSeatsExceedsTenPercentage(selection.getSelectedMovie().getId(),
@@ -111,7 +115,9 @@ public class SelectionController {
                 selection.getSelectedSeatsString())) {
             model.addAttribute("message",
                     "Sorry, one or more of the seats you selected exceeds 10% of the total seats for upcoming showtime.");
-            return "error";
+            model.addAttribute("selection", selection);
+            session.setAttribute("selection", selection);
+            return "select";
         }
         return "redirect:/checkout";
 

@@ -22,14 +22,12 @@ public class RegisterController {
     DataStore dataStore;
 
     @RequestMapping("/register")
-
     public String registerPage(Model model) {
         model.addAttribute("user", new User());
         return "register";
     }
 
-    // payment page
-    @RequestMapping("/payment")
+    @RequestMapping("/registeration_payment")
     public String paymentPage(User user, HttpSession session, Model model) {
         if (user.getFirstName().isEmpty() || user.getLastName().isEmpty() || user.getEmail().isEmpty()
                 || user.getPassword().isEmpty() || user.getPhone().isEmpty()) {
@@ -44,14 +42,14 @@ public class RegisterController {
             model.addAttribute("message", "Email already in use");
             return "register";
         }
-        if (!user.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+        if (user.getPassword().length() < 8) {
             model.addAttribute("message",
                     "Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character");
             return "register";
         }
         session.setAttribute("user", user);
         model.addAttribute("user", user);
-        return "payment";
+        return "registeration_payment";
     }
 
     @PostMapping("/register")
