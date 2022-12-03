@@ -28,7 +28,11 @@ public class WebSecurityConfig {
                                                                 "/userinfo",
                                                                 "/checkout",
                                                                 "/search",
-                                                                "/news")
+                                                                "/news",
+                                                                "/cancel",
+                                                                "/myticketsguest",
+                                                                "/ticket/cancel",
+                                                                "/cancelconfirm")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .formLogin((form) -> form
@@ -41,10 +45,4 @@ public class WebSecurityConfig {
 
                 return http.build();
         }
-
-        @Bean
-        public UserDetailsService userDetailsService() {
-                return new AppUserDetailsService();
-        }
-
 }
