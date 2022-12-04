@@ -36,6 +36,32 @@ public class CheckoutController {
             return "redirect:/";
         }
 
+        if (selection.getUser() == null || selection.getUser().getEmail() == null) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth.getName() != "anonymousUser") {
+                Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
+                if (responseuser.isSuccess()) {
+                    User user = responseuser.getData();
+                    Response<Card> response = dataStore.getDefaultCard(user.getId());
+                    if (response.isSuccess()) {
+                        selection.setCard(response.getData());
+                        selection.setUser(user);
+
+                    } else {
+                        model.addAttribute("message",
+                                "You must add a payment method to your account before you can purchase tickets.");
+                        return "redirect:/changepayment";
+                    }
+                } else {
+                    model.addAttribute("message", "You must be logged in to access this page.");
+                    return "error";
+                }
+            } else {
+                session.setAttribute("selection", selection);
+                model.addAttribute("selection", selection);
+                return "userinfo";
+            }
+        }
         ArrayList<Ticket> tickets = new ArrayList<Ticket>();
         for (Seat seat : selection.getSelectedSeats()) {
             Ticket ticket = new Ticket();
@@ -47,34 +73,15 @@ public class CheckoutController {
             tickets.add(ticket);
         }
         selection.setSelectedTickets(tickets);
-
-        if (selection.getUser().getEmail() == null) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth.getName() != "anonymousUser") {
-                User user = dataStore.getUserByEmail(auth.getName());
-                Response<Card> response = dataStore.getDefaultCard(user.getId());
-                if (response.isSuccess()) {
-                    selection.setCard(response.getData());
-                    selection.setUser(user);
-                    session.setAttribute("selection", selection);
-                    model.addAttribute("selection", selection);
-                } else {
-                    model.addAttribute("message",
-                            "You must add a payment method to your account before you can purchase tickets.");
-                    return "redirect:/changepayment";
-                }
-
-                return "checkout";
-            } else {
-                session.setAttribute("selection", selection);
-                model.addAttribute("selection", selection);
-                return "userinfo";
-            }
+        session.setAttribute("selection", selection);
+        model.addAttribute("selection", selection);
+        if (selection.getCard() != null) {
+            model.addAttribute("card", selection.getCard());
         } else {
-            session.setAttribute("selection", selection);
-            model.addAttribute("selection", selection);
-            return "checkout";
+            model.addAttribute("card", new Card());
         }
+
+        return "checkout";
 
     }
 
@@ -82,10 +89,30 @@ public class CheckoutController {
     EmailService emailService;
 
     @PostMapping("/checkout")
-    public String checkoutPage(HttpSession session, Model model) {
+    public String checkoutPage(HttpSession session, Model model, Card card) {
         Selection selection = (Selection) session.getAttribute("selection");
         if (selection == null) {
             return "redirect:/";
+        }
+        if(selection.getCard() == null) {
+            session.setAttribute("selection", selection);
+            model.addAttribute("selection", selection);
+            model.addAttribute("card", card);
+
+            if (card.getCardNumber().length() != 16) {
+                model.addAttribute("message", "Invalid card number");
+                return "checkout";
+            }
+            if (card.getExpiryDate().length() != 5) {
+                model.addAttribute("message", "Invalid expiration date");
+                return "checkout";
+            }
+            if (card.getCvv().length() != 3) {
+                model.addAttribute("message", "Invalid CVV");
+                return "checkout";
+            }
+
+            selection.setCard(card);
         }
 
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);

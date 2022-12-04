@@ -1,6 +1,7 @@
 package com.ensf614.ticketr.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,9 +38,12 @@ public class AdminController {
         if (response.isSuccess()) {
             model.addAttribute("users", response.getData());
             model.addAttribute("user", new User());
+            return "admin";
+        } else {
+            model.addAttribute("message", response.getMessage());
+            return "error";
         }
 
-        return "admin";
     }
 
     @RequestMapping("/admin/adduser")
@@ -59,8 +63,8 @@ public class AdminController {
             return "redirect:/admin";
         } else {
             model.addAttribute("message", response.getMessage());
+            return "error";
         }
-        return "adduser";
     }
 
     @RequestMapping("/admin/edituser")
@@ -84,7 +88,7 @@ public class AdminController {
             return "redirect:/admin";
         } else {
             model.addAttribute("message", response.getMessage());
-            return "edituser";
+            return "error";
         }
     }
 
@@ -103,10 +107,17 @@ public class AdminController {
         return "addmovie";
     }
 
+    @Autowired
+    EmailService emailService;
+
     @PostMapping("/admin/addmovie")
     public String addMovie(Movie movie, Model model) {
-        Response<Boolean> response = dataStore.addMovie(movie);
+        Response<Movie> response = dataStore.addMovie(movie);
+
         if (response.isSuccess()) {
+            Response<List<String>> emails = dataStore.getAllUsersEmails();
+            emailService.sendHtmlNewsletter(emails.getData(), " New Movie Added",
+                    "A new movie has been added to the website. Check it out!");
             return "redirect:/admin/showAllMovies";
         } else {
             model.addAttribute("message", response.getMessage());
@@ -133,7 +144,7 @@ public class AdminController {
             return "redirect:/admin";
         } else {
             model.addAttribute("message", response.getMessage());
-            return "admin";
+            return "error";
         }
     }
 

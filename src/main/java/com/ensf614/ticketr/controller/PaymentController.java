@@ -24,7 +24,8 @@ public class PaymentController {
     @RequestMapping("/changepayment")
     public String changePayment(Model model, Card defaultCard, HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = dataStore.getUserByEmail(auth.getName());
+        Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
+        User user = responseuser.getData();
         if (user == null) {
             model.addAttribute("message", "You must be logged in to access this page.");
             return "error";
@@ -54,7 +55,7 @@ public class PaymentController {
             model.addAttribute("card", card);
             return "changepayment";
         }
-        if (card.getExpiryDate().length() != 4) {
+        if (card.getExpiryDate().length() != 5) {
             model.addAttribute("defaultCard", defaultCard);
             model.addAttribute("message", "Invalid expiry date.");
             model.addAttribute("card", card);

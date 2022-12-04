@@ -4,6 +4,7 @@ public class News {
     private String image;
     private String title;
     private String theNews;
+    private int movieId;
 
     public News() {
     }
@@ -36,6 +37,15 @@ public class News {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 
 }

@@ -6,7 +6,6 @@ public class Response<T> {
     private boolean success;
 
 
-
     public Response(T data, String message, boolean success) {
         this.data = data;
         this.message = message;

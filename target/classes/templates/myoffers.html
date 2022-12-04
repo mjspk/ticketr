@@ -24,6 +24,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr th:if="${offers.size() == 0}">
+                            <td colspan="6">You have no offers</td>
+                        </tr>
                         <tr th:each="offer : ${offers}">
                             <td th:text="${offer.movie.title}"></td>
                             <td th:text="${offer.offer}"></td>

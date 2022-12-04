@@ -37,7 +37,7 @@ public class CancelController {
     @PostMapping("/cancel")
     public String cancelTicket(User user, Model model) {
 
-        Response<User> userResponse = dataStore.getUserResponseByEmail(user.getEmail());
+        Response<User> userResponse = dataStore.getUserByEmail(user.getEmail());
 
         if (!userResponse.isSuccess()) {
             model.addAttribute("message", userResponse.getMessage());
@@ -62,7 +62,6 @@ public class CancelController {
 
     @PostMapping("/ticket/cancel")
     public String cancelTicketConfirm(int ticketId, Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         Response<Ticket> response = dataStore.getTicket(ticketId);
         if (!response.isSuccess()) {
@@ -70,24 +69,30 @@ public class CancelController {
             return "error";
         }
         Response<User> userResponse = dataStore.getUser(response.getData().getUserId());
-
-        Response<Boolean> ticketResponse = dataStore.deleteTicket(ticketId);
-        if (ticketResponse.getData() == false) {
+        if (!userResponse.isSuccess()) {
+            model.addAttribute("message", userResponse.getMessage());
             return "error";
         }
+        User user = userResponse.getData();
 
-        emailService.sendCancelEmail(userResponse.getData());
-
-        if (auth.getName().equals("anonymousUser")) {
+        Response<Boolean> ticketResponse = dataStore.cancelTicket(response.getData());
+        if (!ticketResponse.isSuccess()) {
+            model.addAttribute("message", ticketResponse.getMessage());
+            return "error";
+        }
+        dataStore.addUserCredit(user.getId(), response.getData().getPrice());
+        emailService.sendCancelEmail(user);
+        if (user.getRolesString().contains("ROLE_USER")) {
+            model.addAttribute("message", "Your ticket has been cancelled. You will receive credit valid for a year.");
+            return "cancelconfirm";
+        } else {
             model.addAttribute("message",
                     "Your ticket has been cancelled. You will receive credit valid for a year."
                             + "Please note that you have also been charged a 15% admin fee for cancellation."
                             + "If you would like to get a full refund in the future, please register.");
 
             return "cancelconfirm";
-        } else {
-            model.addAttribute("message", "Your ticket has been cancelled. You will receive credit valid for a year.");
-            return "cancelconfirm";
+
         }
 
     }

@@ -69,7 +69,6 @@ create table ticket (
     foreign key (user_id) references user(id),
     foreign key (showtime_id) references showtime(id),
     foreign key (seat_id) references seat(id),
-    unique (user_id, showtime_id, seat_id)
     
 );
 
@@ -118,7 +117,19 @@ create table credit  (
     id int primary key auto_increment,
     user_id int not null,
     credit_amount double not null,
+    expiration_date varchar(255) not null,
     foreign key (user_id) references user(id),
+);
+
+create table offer (
+    id int primary key auto_increment,
+    user_id int not null,
+    quantity int not null,
+    price int not null,
+    offer varchar(255) not null,
+    movie_id int not null,
+    foreign key (user_id) references user(id),
+    foreign key (movie_id) references movie(id),
 );
 
 
