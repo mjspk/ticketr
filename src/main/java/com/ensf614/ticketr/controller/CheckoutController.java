@@ -36,47 +36,52 @@ public class CheckoutController {
             return "redirect:/";
         }
 
-
-        if (selection.getUser() == null) {
+        if (selection.getUser() == null || selection.getUser().getEmail() == null) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth.getName() != "anonymousUser") {
                 Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
-                User user = responseuser.getData();
-                Response<Card> response = dataStore.getDefaultCard(user.getId());
-                if (response.isSuccess()) {
-                    selection.setCard(response.getData());
-                    selection.setUser(user);
-                    session.setAttribute("selection", selection);
-                    model.addAttribute("selection", selection);
-                } else {
-                    model.addAttribute("message",
-                            "You must add a payment method to your account before you can purchase tickets.");
-                    return "redirect:/changepayment";
-                }
+                if (responseuser.isSuccess()) {
+                    User user = responseuser.getData();
+                    Response<Card> response = dataStore.getDefaultCard(user.getId());
+                    if (response.isSuccess()) {
+                        selection.setCard(response.getData());
+                        selection.setUser(user);
 
-                return "checkout";
+                    } else {
+                        model.addAttribute("message",
+                                "You must add a payment method to your account before you can purchase tickets.");
+                        return "redirect:/changepayment";
+                    }
+                } else {
+                    model.addAttribute("message", "You must be logged in to access this page.");
+                    return "error";
+                }
             } else {
                 session.setAttribute("selection", selection);
                 model.addAttribute("selection", selection);
                 return "userinfo";
             }
-        } else {
-            
-            ArrayList<Ticket> tickets = new ArrayList<Ticket>();
-            for (Seat seat : selection.getSelectedSeats()) {
-                Ticket ticket = new Ticket();
-                ticket.setSeat(seat);
-                ticket.setShowtime(selection.getSelectedShowtime());
-                ticket.setPrice(10.00);
-                ticket.setUserId(selection.getUser().getId());
-                ticket.setStatus("PENDING");
-                tickets.add(ticket);
-            }
-            selection.setSelectedTickets(tickets);
-            session.setAttribute("selection", selection);
-            model.addAttribute("selection", selection);
-            return "checkout";
         }
+        ArrayList<Ticket> tickets = new ArrayList<Ticket>();
+        for (Seat seat : selection.getSelectedSeats()) {
+            Ticket ticket = new Ticket();
+            ticket.setSeat(seat);
+            ticket.setShowtime(selection.getSelectedShowtime());
+            ticket.setPrice(10.00);
+            ticket.setUserId(selection.getUser().getId());
+            ticket.setStatus("PENDING");
+            tickets.add(ticket);
+        }
+        selection.setSelectedTickets(tickets);
+        session.setAttribute("selection", selection);
+        model.addAttribute("selection", selection);
+        if (selection.getCard() != null) {
+            model.addAttribute("card", selection.getCard());
+        } else {
+            model.addAttribute("card", new Card());
+        }
+
+        return "checkout";
 
     }
 
@@ -84,28 +89,31 @@ public class CheckoutController {
     EmailService emailService;
 
     @PostMapping("/checkout")
-    public String checkoutPage(HttpSession session, Model model,Selection mySelection) {
+    public String checkoutPage(HttpSession session, Model model, Card card) {
         Selection selection = (Selection) session.getAttribute("selection");
         if (selection == null) {
             return "redirect:/";
         }
-        session.setAttribute("selection", selection);
-        model.addAttribute("selection", selection);
-        if( mySelection.getCard().getCardNumber().length() != 16) {
-            model.addAttribute("message", "Invalid card number");
-            return "checkout";
-        }
-        if( mySelection.getCard().getExpiryDate().length() != 5) {
-            model.addAttribute("message", "Invalid expiration date");
-            return "checkout";
-        }
-        if( mySelection.getCard().getCvv().length() != 3) {
-            model.addAttribute("message", "Invalid CVV");
-            return "checkout";
-        }
+        if(selection.getCard() == null) {
+            session.setAttribute("selection", selection);
+            model.addAttribute("selection", selection);
+            model.addAttribute("card", card);
 
-        selection.setCard(mySelection.getCard());
-       
+            if (card.getCardNumber().length() != 16) {
+                model.addAttribute("message", "Invalid card number");
+                return "checkout";
+            }
+            if (card.getExpiryDate().length() != 5) {
+                model.addAttribute("message", "Invalid expiration date");
+                return "checkout";
+            }
+            if (card.getCvv().length() != 3) {
+                model.addAttribute("message", "Invalid CVV");
+                return "checkout";
+            }
+
+            selection.setCard(card);
+        }
 
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);
         if (receiptResponse.isSuccess()) {
