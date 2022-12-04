@@ -88,6 +88,21 @@ public class CheckoutController {
         if (selection == null) {
             return "redirect:/";
         }
+        session.setAttribute("selection", selection);
+        model.addAttribute("selection", selection);
+        if( selection.getCard().getCardNumber().length() != 16) {
+            model.addAttribute("message", "Invalid card number");
+            return "checkout";
+        }
+        if( selection.getCard().getExpiryDate().length() != 5) {
+            model.addAttribute("message", "Invalid expiration date");
+            return "checkout";
+        }
+        if( selection.getCard().getCvv().length() != 3) {
+            model.addAttribute("message", "Invalid CVV");
+            return "checkout";
+        }
+       
 
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);
         if (receiptResponse.isSuccess()) {

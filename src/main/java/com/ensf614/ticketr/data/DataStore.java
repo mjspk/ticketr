@@ -1136,7 +1136,36 @@ public class DataStore implements IDataStore {
 
     @Override
     public Response<ArrayList<Offer>> getOffers() {
-        return null;
+
+        Response<ArrayList<Offer>> response = new Response<>();
+        try {
+
+            String sql = "SELECT * FROM offer o INNER JOIN movie m ON o.movie_id = m.id";
+            Statement stmt = getStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList<Offer> offers = new ArrayList<Offer>();
+            while (rs.next()) {
+                Offer offer = new Offer();
+                offer.setId(rs.getInt("id"));
+                offer.setUserId(rs.getInt("user_id"));
+                offer.setPrice(rs.getDouble("price"));
+                offer.setOffer(rs.getString("offer"));
+                offer.setQuantity(rs.getInt("quantity"));
+                Movie movie = new Movie();
+                movie.setId(rs.getInt("movie_id"));
+                movie.setTitle(rs.getString("title"));
+                offer.setMovie(movie);
+
+            }
+            response.setSuccess(true);
+            response.setMessage("Offers fetched successfully");
+            response.setData(offers);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error fetching offers");
+            return response;
+        }
     }
 
     @Override

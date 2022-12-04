@@ -4,11 +4,10 @@ com\ensf614\ticketr\controller\MyTicketsController.class
 com\ensf614\ticketr\controller\PaymentController.class
 com\ensf614\ticketr\controller\CheckoutController.class
 com\ensf614\ticketr\controller\MyNewsController.class
-com\ensf614\ticketr\model\Offers.class
+com\ensf614\ticketr\controller\CancelController.class
 com\ensf614\ticketr\controller\LoginController.class
 com\ensf614\ticketr\controller\AdminController.class
 com\ensf614\ticketr\controller\ContactController.class
-com\ensf614\ticketr\model\AppUserDetails.class
 com\ensf614\ticketr\model\Selection.class
 com\ensf614\ticketr\controller\MyOffersController.class
 com\ensf614\ticketr\securingweb\CustomAuthenticationProvider.class
@@ -17,13 +16,13 @@ com\ensf614\ticketr\TicketrApplication.class
 com\ensf614\ticketr\securingweb\MyAuthenticationSuccessHandler.class
 com\ensf614\ticketr\model\Ticket.class
 com\ensf614\ticketr\model\News.class
+com\ensf614\ticketr\model\Offer.class
 com\ensf614\ticketr\controller\HomeController.class
 com\ensf614\ticketr\controller\AboutController.class
 com\ensf614\ticketr\model\Receipt.class
 com\ensf614\ticketr\model\Card.class
 com\ensf614\ticketr\model\Showtime.class
 com\ensf614\ticketr\controller\SelectionController.class
-com\ensf614\ticketr\model\AppUserDetailsService.class
 com\ensf614\ticketr\controller\RegisterController.class
 com\ensf614\ticketr\data\IDataStore.class
 com\ensf614\ticketr\service\PaymentService.class
