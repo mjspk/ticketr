@@ -36,19 +36,8 @@ public class CheckoutController {
             return "redirect:/";
         }
 
-        ArrayList<Ticket> tickets = new ArrayList<Ticket>();
-        for (Seat seat : selection.getSelectedSeats()) {
-            Ticket ticket = new Ticket();
-            ticket.setSeat(seat);
-            ticket.setShowtime(selection.getSelectedShowtime());
-            ticket.setPrice(10.00);
-            ticket.setUserId(selection.getUser().getId());
-            ticket.setStatus("PENDING");
-            tickets.add(ticket);
-        }
-        selection.setSelectedTickets(tickets);
 
-        if (selection.getUser().getEmail() == null) {
+        if (selection.getUser() == null) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth.getName() != "anonymousUser") {
                 Response<User> responseuser = dataStore.getUserByEmail(auth.getName());
@@ -72,6 +61,18 @@ public class CheckoutController {
                 return "userinfo";
             }
         } else {
+            
+            ArrayList<Ticket> tickets = new ArrayList<Ticket>();
+            for (Seat seat : selection.getSelectedSeats()) {
+                Ticket ticket = new Ticket();
+                ticket.setSeat(seat);
+                ticket.setShowtime(selection.getSelectedShowtime());
+                ticket.setPrice(10.00);
+                ticket.setUserId(selection.getUser().getId());
+                ticket.setStatus("PENDING");
+                tickets.add(ticket);
+            }
+            selection.setSelectedTickets(tickets);
             session.setAttribute("selection", selection);
             model.addAttribute("selection", selection);
             return "checkout";
@@ -83,25 +84,27 @@ public class CheckoutController {
     EmailService emailService;
 
     @PostMapping("/checkout")
-    public String checkoutPage(HttpSession session, Model model) {
+    public String checkoutPage(HttpSession session, Model model,Selection mySelection) {
         Selection selection = (Selection) session.getAttribute("selection");
         if (selection == null) {
             return "redirect:/";
         }
         session.setAttribute("selection", selection);
         model.addAttribute("selection", selection);
-        if( selection.getCard().getCardNumber().length() != 16) {
+        if( mySelection.getCard().getCardNumber().length() != 16) {
             model.addAttribute("message", "Invalid card number");
             return "checkout";
         }
-        if( selection.getCard().getExpiryDate().length() != 5) {
+        if( mySelection.getCard().getExpiryDate().length() != 5) {
             model.addAttribute("message", "Invalid expiration date");
             return "checkout";
         }
-        if( selection.getCard().getCvv().length() != 3) {
+        if( mySelection.getCard().getCvv().length() != 3) {
             model.addAttribute("message", "Invalid CVV");
             return "checkout";
         }
+
+        selection.setCard(mySelection.getCard());
        
 
         Response<Receipt> receiptResponse = dataStore.processPayment(selection);

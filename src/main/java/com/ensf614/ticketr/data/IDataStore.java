@@ -36,7 +36,7 @@ public interface IDataStore {
 
     public Response<Boolean> deleteMovie(int id);
 
-    public Response<Boolean> addMovie(Movie movie);
+    public Response<Movie> addMovie(Movie movie);
 
     public Response<Receipt> processPayment(Selection selection);
 
@@ -84,4 +84,6 @@ public interface IDataStore {
     public Response<User> getUserByEmail(String email);
 
     public Response<Boolean> addUserCredit(int userId, double amount);
+    public Response<List<String>> getAllUsersEmails();
+
 }

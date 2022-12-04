@@ -34,6 +34,7 @@ import com.ensf614.ticketr.service.PaymentService;
 
 @Component("dataStore")
 public class DataStore implements IDataStore {
+
     @Autowired
     private Environment env;
 
@@ -629,6 +630,7 @@ public class DataStore implements IDataStore {
                 news.setImage(rs.getString("image"));
                 news.setTheNews(rs.getString("theNews"));
                 news.setTitle(rs.getString("title"));
+                news.setMovieId(rs.getInt("movieid"));
                 mynews.add(news);
             }
             response.setSuccess(true);
@@ -878,9 +880,9 @@ public class DataStore implements IDataStore {
     }
 
     @Override
-    public Response<Boolean> addMovie(Movie movie) {
+    public Response<Movie> addMovie(Movie movie) {
 
-        Response<Boolean> response = new Response<>();
+        Response<Movie> response = new Response<>();
         try {
             String sql = "INSERT INTO movie (title, description, genre, rating, release_date, duration, trailer, poster, status) VALUES ('"
                     + movie.getTitle() + "', '" + movie.getDescription() + "', '" + movie.getGenre() + "', '"
@@ -889,9 +891,19 @@ public class DataStore implements IDataStore {
             PreparedStatement stmt = getPreparedStatement(sql);
             stmt.executeUpdate();
             stmt.clearBatch();
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                movie.setId(rs.getInt(1));
+            }
             response.setSuccess(true);
             response.setMessage("Movie added successfully");
-            response.setData(true);
+            response.setData(movie);
+            News news = new News();
+            news.setImage(movie.getPoster());
+            news.setTitle(movie.getTitle());
+            news.setTheNews(" is now available for booking");
+            news.setMovieId(movie.getId());
+            addNews(news);
             return response;
         } catch (Exception e) {
             response.setSuccess(false);
@@ -937,7 +949,13 @@ public class DataStore implements IDataStore {
             stmt.executeUpdate(sql);
             sql = "DELETE FROM payment WHERE user_id = " + id;
             stmt.executeUpdate(sql);
+            sql = "DELETE FROM credit WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM offer WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
             sql = "DELETE FROM ticket WHERE user_id = " + id;
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM user_role WHERE user_id = " + id;
             stmt.executeUpdate(sql);
             sql = "DELETE FROM user WHERE id = " + id;
             stmt.executeUpdate(sql);
@@ -1135,6 +1153,7 @@ public class DataStore implements IDataStore {
     }
 
     @Override
+
     public Response<ArrayList<Offer>> getOffers() {
 
         Response<ArrayList<Offer>> response = new Response<>();
@@ -1216,7 +1235,6 @@ public class DataStore implements IDataStore {
                 response.setMessage("You can only cancel tickets 72 hours before showtime");
                 return response;
             }
-
             sql = "UPDATE ticket SET status = 'cancelled' WHERE id = " + ticket.getId();
             stmt = getStatement();
             stmt.executeUpdate(sql);
@@ -1318,6 +1336,51 @@ public class DataStore implements IDataStore {
             response.setMessage("Error adding credit");
             return response;
         }
+    }
+
+    public Response<Boolean> addNews(News news) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+            String sql = "INSERT INTO news (image, title, theNews,movieid) VALUES ('"
+                    + news.getImage() + "', '" + news.getTitle() + "', '" + news.getTheNews() + "' , "
+                    + news.getMovieId() + ")";
+            PreparedStatement stmt = getPreparedStatement(sql);
+            stmt.executeUpdate();
+            stmt.clearBatch();
+            response.setSuccess(true);
+            response.setMessage("News added successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error adding news");
+            return response;
+        }
+
+    }
+
+    @Override
+    public Response<List<String>> getAllUsersEmails() {
+        Response<List<String>> response = new Response<>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT email FROM user";
+            ResultSet rs = stmt.executeQuery(sql);
+            List<String> emails = new ArrayList<>();
+            while (rs.next()) {
+                emails.add(rs.getString("email"));
+            }
+            response.setSuccess(true);
+            response.setMessage("Emails retrieved successfully");
+            response.setData(emails);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving emails");
+            return response;
+        }
+
     }
 
 }

@@ -17,16 +17,7 @@ public class Selection {
     private double totalPrice;
 
     public Selection() {
-        user = new User();
-        selectedMovie = new Movie();
-        selectedTheater = new Theater();
-        selectedShowtime = new Showtime();
-        card = new Card();
-        selectedSeatsString = new String[] {};
-        selectedTickets = new ArrayList<Ticket>();
-        theaters = new ArrayList<Theater>();
-        showtimes = new ArrayList<Showtime>();
-        seats = new ArrayList<Seat>();
+
     }
 
     public Movie getSelectedMovie() {
@@ -43,7 +34,7 @@ public class Selection {
 
     public void setSelectedTickets(ArrayList<Ticket> selectedTickets) {
         this.selectedTickets = selectedTickets;
-        totalPrice= selectedTickets.stream().mapToDouble(Ticket::getPrice).sum();
+        totalPrice = selectedTickets.stream().mapToDouble(Ticket::getPrice).sum();
     }
 
     public User getUser() {
@@ -65,10 +56,9 @@ public class Selection {
             }
         }
         return selectedSeats;
-       
+
     }
 
-    
     public Card getCard() {
         return card;
     }
@@ -78,19 +68,11 @@ public class Selection {
     }
 
     public int getSelectedTheaterId() {
-        return selectedTheater.getId() ;
-    }
-
-    public void setSelectedTheaterId(int selectedTheaterId) {
-        this.selectedTheater.setId(selectedTheaterId);
+        return selectedTheater == null ? 0 : selectedTheater.getId();
     }
 
     public int getSelectedShowtimeId() {
-        return selectedShowtime.getId() ;
-    }
-
-    public void setSelectedShowtimeId(int selectedShowtimeId) {
-        this.selectedShowtime.setId(selectedShowtimeId);
+        return selectedShowtime == null ? 0 : selectedShowtime.getId();
     }
 
     public Theater getSelectedTheater() {

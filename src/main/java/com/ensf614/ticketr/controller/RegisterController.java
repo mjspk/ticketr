@@ -60,7 +60,7 @@ public class RegisterController {
             model.addAttribute("message", "Please enter a valid credit card number");
             return "registeration_payment";
         }
-        if (myuser.getDefaultCard().getExpiryDate().length() != 4) {
+        if (myuser.getDefaultCard().getExpiryDate().length() != 5) {
             model.addAttribute("message", "Please enter a valid credit card expiration date");
             return "registeration_payment";
         }

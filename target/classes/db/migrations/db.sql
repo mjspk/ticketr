@@ -121,6 +121,17 @@ create table credit  (
     foreign key (user_id) references user(id),
 );
 
+create table offer (
+    id int primary key auto_increment,
+    user_id int not null,
+    quantity int not null,
+    price int not null,
+    offer varchar(255) not null,
+    movie_id int not null,
+    foreign key (user_id) references user(id),
+    foreign key (movie_id) references movie(id),
+);
+
 
 
 

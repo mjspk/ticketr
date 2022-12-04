@@ -55,7 +55,7 @@ public class PaymentController {
             model.addAttribute("card", card);
             return "changepayment";
         }
-        if (card.getExpiryDate().length() != 4) {
+        if (card.getExpiryDate().length() != 5) {
             model.addAttribute("defaultCard", defaultCard);
             model.addAttribute("message", "Invalid expiry date.");
             model.addAttribute("card", card);

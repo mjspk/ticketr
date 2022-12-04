@@ -1,6 +1,7 @@
 package com.ensf614.ticketr.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import com.ensf614.ticketr.model.Receipt;
+import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Ticket;
 import com.ensf614.ticketr.model.User;
 
@@ -24,7 +26,7 @@ public class EmailService {
     @Autowired
     private Environment env;
 
-    private void sendEmail(String to, String subject, String body) {
+    private void sendEmail(String[] to, String subject, String body) {
         String username = env.getProperty("spring.mail.username");
         String password = env.getProperty("spring.mail.password");
         String host = env.getProperty("spring.mail.host");
@@ -42,10 +44,6 @@ public class EmailService {
         // `prepareMessage` implementation is omitted, construct your own message here
         MimeMessage mimeMessage = prepareMessage(session, username, to, subject, body);
 
-        // your credentials
-
-        // get the transport instance from the freshly created session
-        // pass the valid protocol name, here the SMTP is used
         Transport transport;
         try {
             transport = session.getTransport("smtp");
@@ -65,12 +63,12 @@ public class EmailService {
 
     }
 
-    private MimeMessage prepareMessage(Session session, String username, String to, String subject, String body) {
+    private MimeMessage prepareMessage(Session session, String username, String[] to, String subject, String body) {
         MimeMessage mimeMessage = new MimeMessage(session);
 
         try {
             mimeMessage.setFrom(username);
-            mimeMessage.setRecipient(javax.mail.Message.RecipientType.TO, new javax.mail.internet.InternetAddress(to));
+            mimeMessage.addRecipients(javax.mail.Message.RecipientType.TO, String.join(",", to));
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(body, "text/html");
 
@@ -105,7 +103,7 @@ public class EmailService {
         } else {
             body += "<br><br><h3>You can cancel your Tickets up to 72 hours before the show and you will get a full credit to use with anyfutur purchasesup to one year.</h3>";
         }
-        sendEmail(to, subject, body);
+        sendEmail(new String[] { to }, subject, body);
 
     }
 
@@ -121,6 +119,16 @@ public class EmailService {
                     + "</h3><br><h3>Please note that you have also been charged a 15% admin fee for cancellation."
                     + "</h3><br><h3>If you would like to get a full refund in the future, please register.</h3>";
         }
-        sendEmail(to, subject, body);
+        sendEmail(new String[] { to }, subject, body);
+    }
+
+    public void sendHtmlNewsletter(List<String> emails, String subject, String body) {
+        List<String> validEmails = new ArrayList<String>();
+        for (String email : emails) {
+            if (email.contains("@gmail.com")) {
+                validEmails.add(email);
+            }
+        }
+        sendEmail(validEmails.toArray(new String[validEmails.size()]), subject, body);
     }
 }
