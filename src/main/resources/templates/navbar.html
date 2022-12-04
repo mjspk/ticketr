@@ -16,6 +16,7 @@
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/upcoming}">Upcoming</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/mytickets}">My Tickets</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/myoffers}">My Offers</a></li>
+                <li sec:authorize="isAnonymous()"><a th:href="@{/cancel}">Cancel Ticket</a></li>
                 <li><a th:href="@{/mynews}">News</a></li>
                 <li><a th:href="@{/contact}">Contact</a></li>
                 <li><a th:href="@{/about}">About</a></li>

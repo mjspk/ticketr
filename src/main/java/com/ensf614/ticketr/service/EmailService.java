@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import com.ensf614.ticketr.model.Receipt;
 import com.ensf614.ticketr.model.Ticket;
+import com.ensf614.ticketr.model.User;
 
 @Component
 public class EmailService {
@@ -99,12 +100,29 @@ public class EmailService {
         body += "<br><br><h3>Enjoy the movie!</h3>";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        if (!username.equals("anonymousUser")) {
+        if (username.equals("anonymousUser")) {
             body += "<br><br><h3>You can cancel your Tickets up to 72 hours before the show and you will get a credit with 15% off ( adminstrationfees) to use with any futur purchases up to one year.</h3>";
         } else {
             body += "<br><br><h3>You can cancel your Tickets up to 72 hours before the show and you will get a full credit to use with anyfutur purchasesup to one year.</h3>";
         }
         sendEmail(to, subject, body);
 
+    }
+
+    public void sendCancelEmail(User user) {
+        String to = user.getEmail();
+        String subject = "Ticketr Cancellation Confirmation";
+        String body = "<h1>Thank you for using Ticketr!</h1>";
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        if (username.equals("anonymousUser")) {
+            body += "<br><br><h3>Your ticket has been cancelled. You will receive credit valid for a year."
+                    + "</h3><br><h3>Please note that you have also been charged a 15% admin fee for cancellation."
+                    + "</h3><br><h3>If you would like to get a full refund in the future, please register.</h3>";
+        } else {
+            body += "<br><br><h3>Your ticket has been cancelled. You will receive credit valid for a year.</h3>";
+        }
+        sendEmail(to, subject, body);
     }
 }

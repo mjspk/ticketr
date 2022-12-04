@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -15,7 +17,7 @@ import com.ensf614.ticketr.data.DataStore;
 import com.ensf614.ticketr.data.IDataStore;
 import com.ensf614.ticketr.model.Response;
 import com.ensf614.ticketr.model.Ticket;
-import com.ensf614.ticketr.service.EmailService;
+import com.ensf614.ticketr.model.User;
 
 @Controller
 public class MyTicketsController {
@@ -24,6 +26,7 @@ public class MyTicketsController {
 
     @RequestMapping("/mytickets")
     public String myTicketsPage(Model model) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Response<List<Ticket>> response = dataStore.getTicketsByUserEmail(auth.getName());
         if (response.isSuccess()) {
@@ -33,7 +36,19 @@ public class MyTicketsController {
             model.addAttribute("message", response.getMessage());
             return "error";
         }
+
     }
 
-    
+    @RequestMapping("/myticketsguest")
+    public String myTicketsGuestPage(User user, Model model) {
+        Response<List<Ticket>> response = dataStore.getTicketsByUserEmail(user.getEmail());
+        if (response.isSuccess()) {
+            model.addAttribute("tickets", response.getData());
+            return "myticketsguest";
+        } else {
+            model.addAttribute("message", response.getMessage());
+            return "error";
+        }
+    }
+
 }

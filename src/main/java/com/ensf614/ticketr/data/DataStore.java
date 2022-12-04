@@ -1179,4 +1179,89 @@ public class DataStore implements IDataStore {
         return null;
     }
 
+    @Override
+    public Response<Boolean> deleteTicket(int id) {
+
+        Response<Boolean> response = new Response<>();
+        try {
+
+            Statement stmt = getStatement();
+            String sql = "DELETE FROM ticket WHERE id = "
+                    + id;
+            stmt.executeUpdate(sql);
+            response.setSuccess(true);
+            response.setMessage("Ticket deleted successfully");
+            response.setData(true);
+            return response;
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error deleting ticket");
+            return response;
+        }
+
+    }
+
+    @Override
+    public Response<Ticket> getTicket(int id) {
+
+        Response<Ticket> response = new Response<Ticket>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM ticket WHERE id = " + id;
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                Ticket ticket = new Ticket();
+                ticket.setId(rs.getInt("id"));
+                ticket.setUserId(rs.getInt("user_id"));
+                ticket.setPrice(rs.getDouble("price"));
+                ticket.setStatus(rs.getString("status"));
+                response.setSuccess(true);
+                response.setMessage("Ticket retrieved successfully");
+                response.setData(ticket);
+                return response;
+            } else {
+                response.setSuccess(false);
+                response.setMessage("Seat not found");
+                return response;
+            }
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving seat");
+            return response;
+        }
+    }
+
+    @Override
+    public Response<User> getUserResponseByEmail(String email) {
+
+        Response<User> response = new Response<User>();
+        try {
+            Statement stmt = getStatement();
+            String sql = "SELECT * FROM user WHERE email = '"
+                    + email + "'";
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("user.id"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                Set<Role> roles = getUserRoles(user);
+                user.setRoles(roles);
+                response.setSuccess(true);
+                response.setMessage("User retrieved successfully");
+                response.setData(user);
+                return response;
+            } else {
+                response.setSuccess(false);
+                response.setMessage("User not found");
+                return response;
+            }
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("Error retrieving user");
+            return response;
+        }
+    }
+
 }

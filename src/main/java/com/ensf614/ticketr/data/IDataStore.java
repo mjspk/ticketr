@@ -78,8 +78,14 @@ public interface IDataStore {
     public Response<Movie> getMovie(int movieId);
 
     public User getUserByEmail(String email);
-    
+
     public Response<ArrayList<Movie>> getUpcomingMovies();
-    
+
     public Response<ArrayList<Movie>> getAllShowingMovies();
+
+    public Response<Boolean> deleteTicket(int id);
+
+    public Response<Ticket> getTicket(int id);
+
+    public Response<User> getUserResponseByEmail(String email);
 }
